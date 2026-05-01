@@ -44,7 +44,7 @@ Ask each question, wait for the answer, then move to the next. Be terse.
 ## Post-render scaffold
 
 1. For each domain in `domains`, create directory `wiki/<Domain>/` if missing.
-2. Render `wiki/_master-index.md` from `.claude/.vault-init-template-index.md` (or write directly): replace `{{domain_index_sections}}` with one `## <Domain>\n\n_(no articles yet)_\n` block per chosen domain. Note: the cached index template is the original `templates/_master-index.md.tmpl` content — if `.claude/.vault-init-template-index.md` is missing, fall back to a minimal `# Master Index\n\n` header plus the domain sections.
+2. Write `wiki/_master-index.md` directly: a `# Master Index\n\n> Single, flat index of every article in `wiki/`. Rebuilt by `/refresh-index`. Do not edit by hand outside of compile/refresh-index runs.\n\n` header plus one `## <Domain>\n\n_(no articles yet)_\n` block per chosen domain. (The installer-staged `wiki/_master-index.md` from `templates/_master-index.md.tmpl` still contains the `{{domain_index_sections}}` marker — overwrite it.)
 3. If `private_notes == "yes"`, create `notes/private/`.
 4. Report in chat: "Vault initialized. Run `/compile` when you have content in `raw/`."
 

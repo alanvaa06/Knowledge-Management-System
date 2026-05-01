@@ -1,0 +1,13 @@
+{
+  "owner_name": "Jane Doe — staff ML engineer",
+  "owner_first_name": "Jane",
+  "owner_bio": "staff ML engineer",
+  "domain_tag_list": "`AI`, `Engineering`",
+  "voice_paragraph": "Voice: standard. Clear, complete sentences. No filler, no hedging. Direct.",
+  "notes_sacred": "yes",
+  "private_notes": "yes",
+  "tag_count_rule": "exactly two",
+  "tag_policy_paragraph": "  - Domain tags: `AI`, `Engineering`.\n  - Default: one domain tag + one topic tag.",
+  "citation_paragraph": "Citations: `[[wikilinks]]` to other vault articles only.",
+  "output_explicit_only": "yes"
+}

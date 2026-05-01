@@ -1,0 +1,26 @@
+# {{owner_first_name}}'s Vault
+
+Structured knowledge base scaffolded by [obsidian-vault-kit](https://github.com/<you>/obsidian-vault-kit).
+
+## Layout
+
+- `raw/` — drop unprocessed sources here (PDFs, papers, decks, notebooks)
+- `wiki/` — compiled knowledge base, organized by domain
+- `wiki/_master-index.md` — single flat index
+- `notes/` — your handwritten notes{{#if notes_sacred}} (sacred — Claude only edits via `/refine`){{/if}}
+- `output/` — artifacts you explicitly ask Claude to produce
+
+## Working with Claude Code
+
+Open this folder in Claude Code. Available commands:
+
+- `/compile` — process `raw/` into `wiki/`
+- `/audit` — review `wiki/` for issues (read-only)
+- `/refine <path>` — editor pass on a `notes/` file
+- `/refresh-index` — rebuild the master index
+
+Just ask a question and the `vault-query` skill auto-fires.
+
+## Re-tailoring the operating manual
+
+Run `/vault-init force` to re-run the interview and regenerate `CLAUDE.md`.

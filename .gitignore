@@ -1,5 +1,30 @@
+# Dev tooling
 node_modules/
 .DS_Store
 *.log
 .idea/
 .vscode/
+
+# Local-only docs (specs, plans, internal design notes)
+docs/
+
+# Vault content (kit must never ship a user's actual vault data)
+raw/
+wiki/
+notes/
+output/
+private/
+**/notes/private/
+
+# Local Claude / IDE state
+.claude/
+.claude-local/
+
+# Secrets and credentials
+.env
+.env.*
+*.key
+*.pem
+*.p12
+secrets/
+credentials.json

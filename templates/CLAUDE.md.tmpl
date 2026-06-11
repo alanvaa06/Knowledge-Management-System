@@ -80,6 +80,14 @@ Editor pass over a `notes/` file. Voice-preserving, never generative.
 ### `refresh index`
 Rebuild `_master-index.md` from scratch based on what's in `wiki/`. Flat grouped list with `[[wikilinks]]` and one-line descriptions. Single index — no per-folder indexes.
 
+### `teach`
+Multi-session tutor grounded in `wiki/`. State lives in `output/teach/<topic-slug>/` — invoking `teach` counts as {{owner_first_name}}'s explicit ask to write there.
+1. New topic (no `progress.md` yet): interview {{owner_first_name}} first — why this topic, what for, prior knowledge. Write the mission into `progress.md`. Never skip; never re-interview an existing topic.
+2. Existing topic: read `progress.md` (Mission, Track, Preferences) and pick the next lesson in the zone of proximal development.
+3. Ground every lesson in `wiki/` via the same graph walk as `query`. Cite with `[[wikilinks]]`. If the wiki is thin, say so and suggest sources for `raw/` — never substitute parametric knowledge silently.
+4. Write one session file per lesson (`sessions/NNNN-name.md`), run it interactively in chat with a retrieval quiz, then append a Track row to `progress.md`.
+5. Never write outside `output/teach/<topic-slug>/`. Never read `notes/private/`. Never edit past session files.
+
 ## Hard Don'ts
 {{#if notes_sacred}}
 - Don't edit `notes/` outside of `refine`.

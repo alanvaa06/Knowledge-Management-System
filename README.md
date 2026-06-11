@@ -51,13 +51,14 @@ The wall stays intact. Private synthesis informs the answer; the answer stays in
 
 ## Workflows
 
-The kit ships with five vault-scoped slash commands and one auto-triggered skill, all loaded after install:
+The kit ships with six vault-scoped slash commands and one auto-triggered skill, all loaded after install:
 
 - **`/vault-init`** — one-time interview that tailors `CLAUDE.md` to you (your name, domains, tag policy, voice).
 - **`/compile`** — process `raw/` into `wiki/`. Plan-and-confirm: lists what it will write, waits for explicit approval, then writes only the wiki articles and updates `_master-index.md`.
 - **`/audit`** — read-only review of `wiki/`. Surfaces broken wikilinks, duplicates, stale index entries, tag drift. Reports only — never auto-fixes.
 - **`/refine <path>`** — voice-preserving editor pass on a `notes/` file. Fixes typos silently, flags unclear passages with `> [!question]` callouts, never paraphrases. Always shows a diff before applying.
 - **`/refresh-index`** — rebuild `wiki/_master-index.md` from scratch.
+- **`/teach <topic>`** — multi-session tutor grounded in the wiki. New topic starts with a short mission interview; each session writes one lesson to `output/teach/<topic>/sessions/` and tracks progress in `progress.md`. Cites wiki articles, never touches `wiki/` or `notes/`.
 - **`vault-query` skill** — auto-fires when you ask the vault a question. Walks `_master-index.md` and wikilinks before answering, cites every source, defaults to chat output.
 
 All commands live inside `<vault>/.claude/` after install — they exist only inside vaults that ran the kit. No global pollution, no name collisions.

@@ -17,7 +17,7 @@ private/
 **/notes/private/
 
 # Local Claude / IDE state
-.claude/
+/.claude/
 .claude-local/
 
 # Secrets and credentials

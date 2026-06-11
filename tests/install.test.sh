@@ -18,6 +18,7 @@ test -f .claude/commands/compile.md || { echo "FAIL: compile command not copied"
 test -f .claude/commands/audit.md || { echo "FAIL: audit command not copied"; exit 1; }
 test -f .claude/commands/refine.md || { echo "FAIL: refine command not copied"; exit 1; }
 test -f .claude/commands/refresh-index.md || { echo "FAIL: refresh-index command not copied"; exit 1; }
+test -f .claude/commands/teach.md || { echo "FAIL: teach command not copied"; exit 1; }
 test -f .claude/skills/vault-query/SKILL.md || { echo "FAIL: vault-query skill not copied"; exit 1; }
 test -f .claude/lib/render-template.sh || { echo "FAIL: renderer not copied"; exit 1; }
 test -f .claude/lib/render-template.ps1 || { echo "FAIL: PS renderer not copied"; exit 1; }

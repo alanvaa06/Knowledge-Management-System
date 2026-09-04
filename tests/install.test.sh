@@ -56,4 +56,9 @@ test "$(cat output/sentinel.txt)" = "sentinel" || { echo "FAIL: --force touched 
 test "$(cat wiki/foo.md)" = "user wiki article" || { echo "FAIL: --force touched wiki/foo.md (non-template wiki content)"; exit 1; }
 grep -q 'sentinel entry' wiki/_log.md || { echo "FAIL: --force overwrote wiki/_log.md (user history)"; exit 1; }
 
+# vault-init's inline log stub must stay identical to the canonical template
+diff <(sed -n '/^   # Log$/,/tail -5`$/p' "$KIT/templates/.claude/commands/vault-init.md" | sed 's/^   //' | tr -d '\r') \
+     <(tr -d '\r' < "$KIT/templates/_log.md.tmpl") \
+  || { echo "FAIL: vault-init.md inline log stub differs from templates/_log.md.tmpl"; exit 1; }
+
 echo "PASS: installer behaves correctly"

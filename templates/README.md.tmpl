@@ -16,10 +16,11 @@ Structured knowledge base scaffolded by [obsidian-vault-kit](https://github.com/
 Open this folder in Claude Code. Available commands:
 
 - `/compile` — process `raw/` into `wiki/`
-- `/audit` — review `wiki/` for structural issues (read-only)
+- `/audit` — review `wiki/` for structural issues (read-only apart from its `_log.md` entry)
 - `/audit deep` — adds contradiction, stale-claim, orphan, and data-gap checks (slow, run monthly)
 - `/refine <path>` — editor pass on a `notes/` file
 - `/refresh-index` — rebuild the master index
+- `/teach <topic>` — multi-session tutor grounded in the wiki; writes to `output/teach/<topic>/`
 
 Just ask a question and the `vault-query` skill auto-fires.
 

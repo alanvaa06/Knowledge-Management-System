@@ -14,6 +14,7 @@ test -f README.md || { echo "FAIL: README.md not created"; exit 1; }
 test -f wiki/_master-index.md || { echo "FAIL: wiki/_master-index.md not created"; exit 1; }
 test -f wiki/_log.md || { echo "FAIL: wiki/_log.md not created"; exit 1; }
 grep -q '^# Log' wiki/_log.md || { echo "FAIL: wiki/_log.md missing header"; exit 1; }
+! grep -q '{{' wiki/_log.md || { echo "FAIL: wiki/_log.md must not contain placeholders"; exit 1; }
 test -f .claude/.vault-init-template.md || { echo "FAIL: .vault-init-template.md not cached"; exit 1; }
 test -f .claude/commands/vault-init.md || { echo "FAIL: vault-init command not copied"; exit 1; }
 test -f .claude/commands/compile.md || { echo "FAIL: compile command not copied"; exit 1; }

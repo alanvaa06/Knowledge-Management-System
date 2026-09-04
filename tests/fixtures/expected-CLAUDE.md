@@ -30,16 +30,16 @@ Voice: standard. Clear, complete sentences. No filler, no hedging. Direct.
 Citations: `[[wikilinks]]` to other vault articles only.
 
 ## Log
-`wiki/_log.md` is the vault's memory of what was done. Append exactly one entry at the end of every `compile`, `audit`, and `refresh index` run:
+`wiki/_log.md` is the vault's memory of what was done. Append one entry at the end of every completed `compile`, `audit`, and `refresh index` run:
 ```
 ## [YYYY-MM-DD] <op> | <one-line summary>
 - wrote: [[slug-a]], [[slug-b]]
 - updated: [[slug-c]]
 - flagged: [[slug-c]] superseded by [[slug-a]]
 ```
-- `<op>` is one of `compile`, `audit`, `audit deep`, `refresh-index`. Omit empty bullets.
+- `<op>` is one of `compile`, `audit`, `audit deep`, `refresh-index`. Omit empty bullets. `flagged:` means a Superseded callout was written, not merely reported.
 - Record file-level actions on `wiki/` only. Never log query content, answers, or any path under `notes/private/`.
-- Append only. Never rewrite or delete past entries. Read the last few entries at the start of `compile` and `audit` to know what happened recently.
+- Append only. Never rewrite or delete past entries. If the file is missing, create it with a `# Log` header first. Read the last few entries at the start of `compile` and `audit` to know what happened recently.
 
 ## notes/ — Sacred Rules
 - Never edit, restructure, or paraphrase notes. Never copy their content into the wiki.
@@ -60,7 +60,7 @@ Process `raw/` into `wiki/`. MANDATORY plan-and-confirm before writing.
 6. Never write to `raw/`, `notes/`, or `output/` during a compile.
 
 ### `audit`
-Read-only review of `wiki/`. Reports only, never auto-fixes. Single exception: appends one entry to `_log.md` when done.
+Read-only review of `wiki/` articles (skip `_master-index.md` and `_log.md`). Reports only, never auto-fixes. Single exception: appends one entry to `_log.md` when done.
 - Broken `[[wikilinks]]` and missing backlinks.
 - Duplicate or overlapping articles.
 - Stale or missing `_master-index.md` entries.
@@ -73,7 +73,7 @@ Pass `deep` to add content-level checks. Expensive: run monthly, not per session
 - Stale claims superseded by a newer article without a `> [!warning] Superseded` callout.
 - Orphans: articles no other article links to.
 - Data gaps: concepts the wiki leans on that lack a source worth adding to `raw/`.
-Present findings as a plan. Wait for confirmation before applying any fix.
+Present findings as a plan. Wait for confirmation before applying any fix. Approved fixes append their own `_log.md` entry.
 
 ### `query` / `ask`
 Answer a question using `wiki/` first, then `notes/`, then `raw/`.
@@ -108,6 +108,6 @@ Multi-session tutor grounded in `wiki/`. State lives in `output/teach/<topic-slu
 - Don't write to `output/` unless Jane explicitly asks.
 - Don't invent citations. If it's not in `raw/` or `notes/`, say so.
 - Don't create subfolders in `wiki/`.
-- Don't touch `_log.md` except to append one entry at the end of `compile`, `audit`, or `refresh index`.
+- Don't write to `_log.md` except to append an entry at the end of `compile`, `audit`, or `refresh index`.
 - Don't rewrite articles in generic LLM voice during compile.
 - Don't write any file during `compile` without Jane's explicit approval of the plan.

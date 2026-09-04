@@ -1,15 +1,19 @@
 ---
-description: Read-only review of wiki/ — reports broken links, dupes, stale index entries, tag/frontmatter conformance
+description: Read-only review of wiki/ — broken links, dupes, stale index entries, tag/frontmatter conformance. Pass `deep` for contradictions, stale claims, orphans, data gaps. Appends one _log.md entry.
+argument-hint: "[deep]"
 ---
 
 # /audit
 
 Read-only review of `wiki/`. Report findings as a plan. Never auto-fix.
 
+Usage: `/audit` (structural, fast) or `/audit deep` (adds content-level checks, slow).
+
 ## Procedure
 
-1. Walk every file in `wiki/` (recursively).
-2. For each file, check:
+1. **Read recent history.** If `wiki/_log.md` exists, run `grep "^## \[" wiki/_log.md | tail -5` so you know when the last audit ran and what the last compiles touched. If it is missing, note that and continue; step 6 creates it.
+2. **Walk every file in `wiki/`** (recursively), skipping `_master-index.md` and `_log.md` themselves. Neither is an article: no frontmatter, no inbound links expected.
+3. **Structural checks** (always):
    - **Frontmatter conformance** — exactly the fields `Writer`, optional `Link`, `tags`. No others.
    - **Tag conformance** — see `CLAUDE.md` for the active tag policy. Flag violations.
    - **Wikilink validity** — every `[[link]]` resolves to an existing wiki file or note.
@@ -18,11 +22,18 @@ Read-only review of `wiki/`. Report findings as a plan. Never auto-fix.
    - **Stale raw references** — wiki articles citing a raw source no longer in `raw/`.
    - **Duplicate or overlapping articles** — flag potential merges.
    - **Concepts referenced but not defined** — `[[Foo]]` where no `wiki/.../Foo.md` exists.
-3. Present all findings in chat, grouped by category, with file paths and line numbers.
-4. If the user asks you to fix specific findings, present a fix plan and wait for approval (same gate as `/compile`).
+4. **Deep checks** (only when the argument is `deep`). Read article bodies, not just frontmatter and links:
+   - **Contradictions** — two articles asserting incompatible claims about the same thing. Quote both, with file paths.
+   - **Stale claims** — a claim superseded by a newer article that lacks the `> [!warning] Superseded` callout required by `CLAUDE.md`. Time-bound claims with no inline date count as stale-risk.
+   - **Orphans** — articles with no inbound `[[wikilink]]` from any other article (the index does not count).
+   - **Data gaps** — concepts the wiki leans on repeatedly that have no article and no source in `raw/`. Suggest what kind of source would fill each gap.
+5. **Present all findings in chat**, grouped by category, with file paths and line numbers. Deep findings go in their own group.
+6. **Append one entry to `wiki/_log.md`**: `## [YYYY-MM-DD] audit | <N> findings` or `## [YYYY-MM-DD] audit deep | <N> findings`. No `flagged:` bullet: an audit reports, it does not write callouts. If the file is missing, create it with a `# Log` header first. This is the only file write an audit pass performs.
+7. **Fixes are a separate, gated pass.** If the user asks you to fix specific findings, present a fix plan and wait for approval (same gate as `/compile`). Fixes to superseded claims use the callout rule from `CLAUDE.md`, never a rewrite. After applying approved fixes, append a second entry, `## [YYYY-MM-DD] audit | fixes applied`, with `updated:` / `flagged:` bullets listing only what was actually written.
 
 ## Hard don'ts
 
-- Never modify any file during an audit pass. Reports only.
-- Never read `notes/private/` (if that folder exists).
+- Never modify any wiki article during the audit pass. Reports only. The `_log.md` append is the only write; approved fixes in step 7 happen after their own approval gate.
+- Never run deep checks unless `deep` was passed. They are expensive.
+- Never read `notes/private/` (if that folder exists). Never mention it in `_log.md`.
 - Never write a report file. Findings live in chat.

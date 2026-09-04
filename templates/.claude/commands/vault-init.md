@@ -46,7 +46,7 @@ Ask each question, wait for the answer, then move to the next. Be terse.
 1. For each domain in `domains`, create directory `wiki/<Domain>/` if missing.
 2. Write `wiki/_master-index.md` directly: a `# Master Index\n\n> Single, flat index of every article in `wiki/`. Rebuilt by `/refresh-index`. Do not edit by hand outside of compile/refresh-index runs.\n\n` header plus one `## <Domain>\n\n_(no articles yet)_\n` block per chosen domain. (The installer-staged `wiki/_master-index.md` from `templates/_master-index.md.tmpl` still contains the `{{domain_index_sections}}` marker — overwrite it.)
 3. If `private_notes == "yes"`, create `notes/private/`.
-4. If `wiki/_log.md` is missing (vault scaffolded by an older kit), create it with exactly this content:
+4. If `wiki/_log.md` is missing (vault scaffolded by an older kit), create it with exactly this content, dedented with no leading spaces. This is a mirror of the kit's `templates/_log.md.tmpl`, which is canonical; keep the two identical:
    ```
    # Log
 

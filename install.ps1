@@ -64,6 +64,12 @@ if ($ShouldCopyIndex) {
   Copy-Item -Force -LiteralPath (Join-Path $Templates '_master-index.md.tmpl') -Destination $IndexPath
 }
 
+# Ops log: copy only if missing. Never overwrite, even with -Force: it is user history.
+$LogPath = Join-Path $WikiDir '_log.md'
+if (-not (Test-Path -LiteralPath $LogPath)) {
+  Copy-Item -LiteralPath (Join-Path $Templates '_log.md.tmpl') -Destination $LogPath
+}
+
 # Vault-level README — overwrite only if -Force or missing
 $ReadmePath = Join-Path $Cwd 'README.md'
 if (-not (Test-Path -LiteralPath $ReadmePath) -or $Force) {

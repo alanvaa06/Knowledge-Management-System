@@ -11,6 +11,7 @@ Read this before touching the vault.
 - `raw/` — inbox: PDFs, papers, decks, notebooks. You read, never write.
 - `wiki/` — compiled knowledge base. You own it. Flat: files live directly under domain folders ({{domain_tag_list}}). No subfolders, no per-folder `_index.md`.
 - `wiki/_master-index.md` — the one and only index.
+- `wiki/_log.md` — append-only ops journal. Written only by `compile`, `audit`, and `refresh-index`. Never edited by hand.
 - `notes/` — {{owner_first_name}}'s human-authored notes.{{#if notes_sacred}} SACRED. Read-only.{{/if}}
 - `output/` — artifacts {{owner_first_name}} explicitly asks for. Never dump compile logs here.
 
@@ -23,8 +24,22 @@ Read this before touching the vault.
 - Dense bullets, tables, `==highlights==`, `[[wikilinks]]`. End every article with `## Key Takeaways` (3–7 bullets).
 - Match the voice of existing articles. No padding phrases.
 - Never create subfolders inside a domain folder.
+- **Contradictions and staleness.** When a new claim conflicts with or supersedes one in an existing article, never silently overwrite. Insert a `> [!warning] Superseded` callout in the older article, linking the newer article with a `[[wikilink]]`, and keep the original claim beneath it. Time-bound claims carry their source date inline (e.g., "as of 2026-03").
 
 {{citation_paragraph}}
+
+## Log
+`wiki/_log.md` is the vault's memory of what was done. Append one entry at the end of every completed `compile`, `audit`, and `refresh-index` run:
+```
+## [YYYY-MM-DD] <op> | <one-line summary>
+- wrote: `slug-a`, `slug-b`
+- updated: `slug-c`
+- flagged: `slug-c` superseded by `slug-a`
+```
+- `<op>` is one of `compile`, `audit`, `audit deep`, `refresh-index`, mirroring the slash command names. Omit empty bullets. `flagged:` means a Superseded callout was written, not merely reported.
+- Name articles by file stem in backticks, never `[[wikilinks]]`, so the log stays out of Obsidian's graph and is never rewritten by link updates on rename.
+- Record file-level actions on `wiki/` only. Never log query content, answers, or any path under `notes/private/`.
+- Append only. Never rewrite or delete past entries. If the file is missing, create it with a `# Log` header first. Read the last few entries at the start of `compile` and `audit` to know what happened recently.
 
 {{#if notes_sacred}}
 ## notes/ — Sacred Rules
@@ -41,15 +56,15 @@ Read this before touching the vault.
 
 ### `compile`
 Process `raw/` into `wiki/`. MANDATORY plan-and-confirm before writing.
-1. List raw sources to process, target wiki paths, notes to backlink, any new folders. Present in chat.
+1. List raw sources to process, target wiki paths, notes to backlink, any new folders, and any claims in the touched articles that the new source contradicts or supersedes. Present in chat.
 2. Wait for explicit "go" / "proceed" / "ok". Revise if asked. Never write files without approval.
-3. After approval: write wiki articles only. Update `_master-index.md`. Report in chat.
-4. Never write compile reports, plans, or logs as files.
+3. After approval: write wiki articles only, applying the contradiction rule to every touched article. Update `_master-index.md`. Append one entry to `_log.md`. Report in chat.
+4. Never write compile reports or plans as files. The `_log.md` entry is the only file-based record.
 5. Never generate wiki articles from `notes/` alone. Scoped `compile notes/X into wiki/X` is the only exception — rare and explicit.
 6. Never write to `raw/`, `notes/`, or `output/` during a compile.
 
 ### `audit`
-Read-only review of `wiki/`. Reports only, never auto-fixes.
+Read-only review of `wiki/` articles (neither `_master-index.md` nor `_log.md` is an article). Reports only, never auto-fixes. Single exception: appends one entry to `_log.md` when done.
 - Broken `[[wikilinks]]` and missing backlinks.
 - Duplicate or overlapping articles.
 - Stale or missing `_master-index.md` entries.
@@ -57,7 +72,12 @@ Read-only review of `wiki/`. Reports only, never auto-fixes.
 - Concepts referenced but not defined.
 - Tag conformance.
 - Frontmatter conformance (`Writer`, optional `Link`, `tags` only).
-Present findings as a plan. Wait for confirmation before applying any fix.
+Pass `deep` to add content-level checks. Expensive: run monthly, not per session.
+- Contradictions between articles.
+- Stale claims superseded by a newer article without a `> [!warning] Superseded` callout.
+- Orphans: articles no other article links to.
+- Data gaps: concepts the wiki leans on that lack a source worth adding to `raw/`.
+Present findings as a plan. Wait for confirmation before applying any fix. Approved fixes append their own `_log.md` entry.
 
 ### `query` / `ask`
 Answer a question using `wiki/` first, then `notes/`, then `raw/`.
@@ -77,8 +97,8 @@ Editor pass over a `notes/` file. Voice-preserving, never generative.
 5. `notes/private/` is in scope for `refine` only when {{owner_first_name}} names the file explicitly.
 {{/if}}
 
-### `refresh index`
-Rebuild `_master-index.md` from scratch based on what's in `wiki/`. Flat grouped list with `[[wikilinks]]` and one-line descriptions. Single index — no per-folder indexes.
+### `refresh-index`
+Rebuild `_master-index.md` from scratch based on what's in `wiki/`, excluding `_master-index.md` and `_log.md` themselves. Flat grouped list with `[[wikilinks]]` and one-line descriptions. Single index — no per-folder indexes. Append one entry to `_log.md` when done.
 
 ### `teach`
 Multi-session tutor grounded in `wiki/`. State lives in `output/teach/<topic-slug>/` — invoking `teach` counts as {{owner_first_name}}'s explicit ask to write there.
@@ -98,5 +118,6 @@ Multi-session tutor grounded in `wiki/`. State lives in `output/teach/<topic-slu
 {{/if}}
 - Don't invent citations. If it's not in `raw/` or `notes/`, say so.
 - Don't create subfolders in `wiki/`.
+- Don't write to `_log.md` except to append an entry at the end of `compile`, `audit`, `refresh-index`, or an approved audit fix pass.
 - Don't rewrite articles in generic LLM voice during compile.
 - Don't write any file during `compile` without {{owner_first_name}}'s explicit approval of the plan.

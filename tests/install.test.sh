@@ -12,6 +12,8 @@ bash "$KIT/install.sh"
 test -f CLAUDE.md || { echo "FAIL: CLAUDE.md not created"; exit 1; }
 test -f README.md || { echo "FAIL: README.md not created"; exit 1; }
 test -f wiki/_master-index.md || { echo "FAIL: wiki/_master-index.md not created"; exit 1; }
+test -f wiki/_log.md || { echo "FAIL: wiki/_log.md not created"; exit 1; }
+grep -q '^# Log' wiki/_log.md || { echo "FAIL: wiki/_log.md missing header"; exit 1; }
 test -f .claude/.vault-init-template.md || { echo "FAIL: .vault-init-template.md not cached"; exit 1; }
 test -f .claude/commands/vault-init.md || { echo "FAIL: vault-init command not copied"; exit 1; }
 test -f .claude/commands/compile.md || { echo "FAIL: compile command not copied"; exit 1; }
@@ -45,10 +47,12 @@ echo "sentinel" > raw/sentinel.txt
 echo "sentinel" > notes/sentinel.txt
 echo "sentinel" > output/sentinel.txt
 echo "user wiki article" > wiki/foo.md
+echo "## [2026-01-01] compile | sentinel entry" >> wiki/_log.md
 bash "$KIT/install.sh" --force
 test "$(cat raw/sentinel.txt)" = "sentinel" || { echo "FAIL: --force touched raw/"; exit 1; }
 test "$(cat notes/sentinel.txt)" = "sentinel" || { echo "FAIL: --force touched notes/"; exit 1; }
 test "$(cat output/sentinel.txt)" = "sentinel" || { echo "FAIL: --force touched output/"; exit 1; }
 test "$(cat wiki/foo.md)" = "user wiki article" || { echo "FAIL: --force touched wiki/foo.md (non-template wiki content)"; exit 1; }
+grep -q 'sentinel entry' wiki/_log.md || { echo "FAIL: --force overwrote wiki/_log.md (user history)"; exit 1; }
 
 echo "PASS: installer behaves correctly"

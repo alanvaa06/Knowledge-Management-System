@@ -60,6 +60,12 @@ elif [[ $FORCE -eq 1 ]] && grep -q '{{' "$INDEX_DST"; then
 fi
 # Note: any other files in wiki/ (like wiki/foo.md user articles) are NEVER touched.
 
+# Copy ops log stub only if missing. Never overwrite, even with --force: it is user history.
+LOG_DST="$CWD/wiki/_log.md"
+if [[ ! -f "$LOG_DST" ]]; then
+  cp "$TEMPLATES/_log.md.tmpl" "$LOG_DST"
+fi
+
 # Copy vault-level README — overwrite only if missing or --force
 if [[ ! -f "$CWD/README.md" ]] || [[ $FORCE -eq 1 ]]; then
   cp "$TEMPLATES/README.md.tmpl" "$CWD/README.md"

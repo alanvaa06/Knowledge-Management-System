@@ -11,7 +11,7 @@ Voice: standard. Clear, complete sentences. No filler, no hedging. Direct.
 - `raw/` — inbox: PDFs, papers, decks, notebooks. You read, never write.
 - `wiki/` — compiled knowledge base. You own it. Flat: files live directly under domain folders (`AI`, `Engineering`). No subfolders, no per-folder `_index.md`.
 - `wiki/_master-index.md` — the one and only index.
-- `wiki/_log.md` — append-only ops journal. Written only by `compile`, `audit`, and `refresh index`. Never edited by hand.
+- `wiki/_log.md` — append-only ops journal. Written only by `compile`, `audit`, and `refresh-index`. Never edited by hand.
 - `notes/` — Jane's human-authored notes. SACRED. Read-only.
 - `output/` — artifacts Jane explicitly asks for. Never dump compile logs here.
 
@@ -30,14 +30,15 @@ Voice: standard. Clear, complete sentences. No filler, no hedging. Direct.
 Citations: `[[wikilinks]]` to other vault articles only.
 
 ## Log
-`wiki/_log.md` is the vault's memory of what was done. Append one entry at the end of every completed `compile`, `audit`, and `refresh index` run:
+`wiki/_log.md` is the vault's memory of what was done. Append one entry at the end of every completed `compile`, `audit`, and `refresh-index` run:
 ```
 ## [YYYY-MM-DD] <op> | <one-line summary>
-- wrote: [[slug-a]], [[slug-b]]
-- updated: [[slug-c]]
-- flagged: [[slug-c]] superseded by [[slug-a]]
+- wrote: `slug-a`, `slug-b`
+- updated: `slug-c`
+- flagged: `slug-c` superseded by `slug-a`
 ```
 - `<op>` is one of `compile`, `audit`, `audit deep`, `refresh-index`, mirroring the slash command names. Omit empty bullets. `flagged:` means a Superseded callout was written, not merely reported.
+- Name articles by file stem in backticks, never `[[wikilinks]]`, so the log stays out of Obsidian's graph and is never rewritten by link updates on rename.
 - Record file-level actions on `wiki/` only. Never log query content, answers, or any path under `notes/private/`.
 - Append only. Never rewrite or delete past entries. If the file is missing, create it with a `# Log` header first. Read the last few entries at the start of `compile` and `audit` to know what happened recently.
 
@@ -60,7 +61,7 @@ Process `raw/` into `wiki/`. MANDATORY plan-and-confirm before writing.
 6. Never write to `raw/`, `notes/`, or `output/` during a compile.
 
 ### `audit`
-Read-only review of `wiki/` articles (skip `_master-index.md` and `_log.md`). Reports only, never auto-fixes. Single exception: appends one entry to `_log.md` when done.
+Read-only review of `wiki/` articles (neither `_master-index.md` nor `_log.md` is an article). Reports only, never auto-fixes. Single exception: appends one entry to `_log.md` when done.
 - Broken `[[wikilinks]]` and missing backlinks.
 - Duplicate or overlapping articles.
 - Stale or missing `_master-index.md` entries.
@@ -91,7 +92,7 @@ Editor pass over a `notes/` file. Voice-preserving, never generative.
 4. Never restructure, re-order, or paraphrase. Never pull content into `wiki/` as a side effect.
 5. `notes/private/` is in scope for `refine` only when Jane names the file explicitly.
 
-### `refresh index`
+### `refresh-index`
 Rebuild `_master-index.md` from scratch based on what's in `wiki/`, excluding `_master-index.md` and `_log.md` themselves. Flat grouped list with `[[wikilinks]]` and one-line descriptions. Single index — no per-folder indexes. Append one entry to `_log.md` when done.
 
 ### `teach`
@@ -108,6 +109,6 @@ Multi-session tutor grounded in `wiki/`. State lives in `output/teach/<topic-slu
 - Don't write to `output/` unless Jane explicitly asks.
 - Don't invent citations. If it's not in `raw/` or `notes/`, say so.
 - Don't create subfolders in `wiki/`.
-- Don't write to `_log.md` except to append an entry at the end of `compile`, `audit`, or `refresh index`.
+- Don't write to `_log.md` except to append an entry at the end of `compile`, `audit`, `refresh-index`, or an approved audit fix pass.
 - Don't rewrite articles in generic LLM voice during compile.
 - Don't write any file during `compile` without Jane's explicit approval of the plan.

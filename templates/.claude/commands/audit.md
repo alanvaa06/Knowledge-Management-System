@@ -11,7 +11,7 @@ Usage: `/audit` (structural, fast) or `/audit deep` (adds content-level checks, 
 
 ## Procedure
 
-1. **Read recent history.** If `wiki/_log.md` exists, run `grep "^## \[" wiki/_log.md | tail -5` (or read its tail) so you know when the last audit ran and what the last compiles touched. If it is missing, note that and continue; step 6 creates it.
+1. **Read recent history.** If `wiki/_log.md` exists, run `grep "^## \[" wiki/_log.md | tail -5` (or read its tail) so you know when the last audit ran and what the last compiles touched. If it is missing, note that and continue; step 6 creates it. In `deep` mode read the whole log, not just the tail: `wrote:` / `updated:` dates are the recency signal for the stale-claims check.
 2. **Walk every file in `wiki/`** (recursively), skipping `_master-index.md` and `_log.md` themselves. Neither is an article: no frontmatter, no inbound links expected.
 3. **Structural checks** (always):
    - **Frontmatter conformance** — exactly the fields `Writer`, optional `Link`, `tags`. No others.
@@ -29,7 +29,7 @@ Usage: `/audit` (structural, fast) or `/audit deep` (adds content-level checks, 
    - **Data gaps** — concepts the wiki leans on repeatedly that have no article. Check `raw/` by filename only, never open sources; if a raw file plausibly covers the concept, report it as uncompiled rather than a gap. Suggest what kind of source would fill each true gap.
 5. **Present all findings in chat**, grouped by category, with file paths and line numbers. Deep findings go in their own group.
 6. **Append one entry to `wiki/_log.md`**: `## [YYYY-MM-DD] audit | <N> findings` or `## [YYYY-MM-DD] audit deep | <N> findings`, where N counts every item listed in step 5, suggestions included. Header line only, no bullets: findings are not file-level actions, and an audit writes no callouts. If the file is missing, create it with a `# Log` header first. This is the only file write an audit pass performs.
-7. **Fixes are a separate, gated pass.** If the user asks you to fix specific findings, present a fix plan and wait for approval (same gate as `/compile`). Fixes to superseded claims use the callout rule from `CLAUDE.md`, never a rewrite. After applying approved fixes, append a second entry, `## [YYYY-MM-DD] audit | fixes applied`, with `updated:` / `flagged:` bullets listing only what was actually written. Fixes never create new wiki articles; that is `/compile`'s job from a `raw/` source.
+7. **Fixes are a separate, gated pass.** If the user asks you to fix specific findings, present a fix plan and wait for approval (same gate as `/compile`). Fixes to superseded claims use the callout rule from `CLAUDE.md`, never a rewrite. After applying approved fixes, append its own entry, `## [YYYY-MM-DD] audit | fixes applied`, with `updated:` / `flagged:` bullets listing only what was actually written. Fixes never create new wiki articles; that is `/compile`'s job from a `raw/` source.
 
 ## Hard don'ts
 

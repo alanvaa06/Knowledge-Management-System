@@ -13,7 +13,7 @@ You MUST present a plan in chat and receive explicit approval ("go", "proceed", 
 ## Procedure
 
 1. **Read recent history.** If `wiki/_log.md` exists, run `grep "^## \[" wiki/_log.md | tail -5` (or read its tail) so you know what the last compiles and audits touched. If it is missing, note that and continue; step 6 creates it.
-2. **Survey raw/.** List sources not yet represented in `wiki/`. For each, propose:
+2. **Survey raw/.** List sources not yet represented in `wiki/`. If nothing is pending, say so and stop: no plan, no approval, no `_log.md` entry. For each pending source, propose:
    - Target wiki path (`wiki/<Domain>/<slug>.md`)
    - Existing wiki articles to update or backlink
    - `notes/` files to cite (read `notes/`, excluding `notes/private/`, to find overlap — never copy notes content into wiki)

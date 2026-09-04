@@ -10,6 +10,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# Resolve $Output against PowerShell's location, not [Environment]::CurrentDirectory.
+$Output = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Output)
+
 if (-not (Test-Path -LiteralPath $Template)) { throw "render-template.ps1: template not found: $Template" }
 if (-not (Test-Path -LiteralPath $Answers))  { throw "render-template.ps1: answers not found: $Answers" }
 
@@ -74,10 +77,10 @@ foreach ($k in $vars.Keys) {
 
 # Final check: no remaining {{…}} markers.
 if ($rendered -match '\{\{') {
-  Write-Error "render-template.ps1: unresolved markers remain"
   ($rendered -split "`n") | ForEach-Object {
-    if ($_ -match '\{\{[^}]*\}\}') { Write-Error $_ }
+    if ($_ -match '\{\{[^}]*\}\}') { [Console]::Error.WriteLine($_) }
   }
+  Write-Error "render-template.ps1: unresolved markers remain"
   exit 1
 }
 

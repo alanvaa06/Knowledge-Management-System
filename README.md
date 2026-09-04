@@ -79,10 +79,10 @@ cd /path/to/new-vault
 bash ~/tools/knowledge-management-system/install.sh
 ```
 
-**Windows PowerShell:**
+**Windows PowerShell (5.1, ships with Windows) or PowerShell 7:**
 ```powershell
 cd C:\path\to\new-vault
-pwsh ~\tools\knowledge-management-system\install.ps1
+powershell -ExecutionPolicy Bypass -File "$HOME\tools\knowledge-management-system\install.ps1"
 ```
 
 The installer:

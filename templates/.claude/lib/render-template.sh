@@ -44,9 +44,10 @@ awk '
       rest = substr(pair, vstart + 1)
       sub(/^[[:space:]]*"/, "", rest)
       sub(/"[[:space:]]*$/, "", rest)
+      gsub(/\\\\/, "\001", rest)
       gsub(/\\n/, "\n", rest)
       gsub(/\\"/, "\"", rest)
-      gsub(/\\\\/, "\\", rest)
+      gsub(/\001/, "\\", rest)
       printf "%s\t%s\0", key, rest
     }
   }
@@ -157,7 +158,7 @@ with open(outfile, 'r', encoding='utf-8') as f:
 for key, value in vars_map.items():
     content = content.replace('{{' + key + '}}', value)
 
-with open(outfile, 'w', encoding='utf-8') as f:
+with open(outfile, 'w', encoding='utf-8', newline='') as f:
     f.write(content)
 PYEOF
   else

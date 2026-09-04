@@ -1,6 +1,6 @@
 # render-template.ps1 — substitute {{key}} and strip {{#if key}}…{{/if}} blocks (inline + block).
-# Usage: pwsh render-template.ps1 <template> <answers.json> <output>
-#    or: powershell -ExecutionPolicy Bypass -File render-template.ps1 <template> <answers.json> <output>
+# Usage: powershell -ExecutionPolicy Bypass -File render-template.ps1 <template> <answers.json> <output>
+#    or: pwsh render-template.ps1 <template> <answers.json> <output>   (PowerShell 7, if installed)
 
 param(
   [Parameter(Mandatory=$true, Position=0)][string]$Template,

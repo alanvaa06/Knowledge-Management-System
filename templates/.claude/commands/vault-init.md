@@ -38,7 +38,7 @@ Ask each question, wait for the answer, then move to the next. Be terse.
 1. Write a JSON answers file to `.claude/.vault-init-answers.json` with all derived keys.
 2. Invoke the shared renderer:
    - On macOS/Linux/Git Bash: `bash .claude/lib/render-template.sh .claude/.vault-init-template.md .claude/.vault-init-answers.json CLAUDE.md`
-   - On Windows PowerShell: `pwsh .claude/lib/render-template.ps1 .claude/.vault-init-template.md .claude/.vault-init-answers.json CLAUDE.md`
+   - On Windows PowerShell: `powershell -ExecutionPolicy Bypass -File .claude/lib/render-template.ps1 .claude/.vault-init-template.md .claude/.vault-init-answers.json CLAUDE.md`
 3. Verify the resulting `CLAUDE.md` contains no remaining `{{` and no orphan `{{#if}}` / `{{/if}}` markers. If any remain, abort and report which keys were missing.
 
 ## Post-render scaffold

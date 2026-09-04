@@ -11,6 +11,7 @@ bash "$KIT/install.sh"
 # Required files
 test -f CLAUDE.md || { echo "FAIL: CLAUDE.md not created"; exit 1; }
 test -f README.md || { echo "FAIL: README.md not created"; exit 1; }
+! grep -q '{{' README.md || { echo "FAIL: vault README.md ships with unrendered {{ placeholders"; exit 1; }
 test -f wiki/_master-index.md || { echo "FAIL: wiki/_master-index.md not created"; exit 1; }
 test -f wiki/_log.md || { echo "FAIL: wiki/_log.md not created"; exit 1; }
 grep -q '^# Log' wiki/_log.md || { echo "FAIL: wiki/_log.md missing header"; exit 1; }

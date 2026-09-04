@@ -27,13 +27,14 @@ Four folders, each with a single role:
 |---|---|---|
 | `raw/` | Inbox for unprocessed sources (PDFs, papers, decks, transcripts) | Read-only |
 | `wiki/` | Compiled knowledge base. Flat, organized by domain, indexed by `_master-index.md` | Read + write (compile target) |
+| `wiki/_log.md` | Append-only ops journal. What `compile`, `audit`, and `refresh-index` did, and when | Append one entry per run. Never rewritten |
 | `notes/` | Your handwritten notes. Sacred — voice-preserving | Read + cite. Edits only via `/refine` (diff-and-confirm) |
 | `notes/private/` | Private synthesis. Never persists | Read on demand during queries. Never written to wiki/output |
 | `output/` | Artifacts you explicitly ask for | Write only when explicitly requested |
 
 The directionality is one-way: `raw/ → wiki/ → output/`. `notes/` is a reference side-channel — the wiki cites and backlinks notes, never generates from them. `notes/private/` is a query-time side-channel — pulled in only when you ask, and only into the chat response.
 
-The rules are enforced by the operating manual (`CLAUDE.md`) and the slash commands themselves. `compile` refuses to write without your explicit approval of the plan. `audit` is read-only. `refine` always shows a diff before touching `notes/`. `notes/private/` is invisible to compile and audit by construction.
+The rules are enforced by the operating manual (`CLAUDE.md`) and the slash commands themselves. `compile` refuses to write without your explicit approval of the plan. `audit` is read-only apart from its log entry. `refine` always shows a diff before touching `notes/`. `notes/private/` is invisible to compile and audit by construction.
 
 ## What `notes/private/` unlocks
 
@@ -54,8 +55,8 @@ The wall stays intact. Private synthesis informs the answer; the answer stays in
 The kit ships with six vault-scoped slash commands and one auto-triggered skill, all loaded after install:
 
 - **`/vault-init`** — one-time interview that tailors `CLAUDE.md` to you (your name, domains, tag policy, voice).
-- **`/compile`** — process `raw/` into `wiki/`. Plan-and-confirm: lists what it will write, waits for explicit approval, then writes only the wiki articles and updates `_master-index.md`.
-- **`/audit`** — read-only review of `wiki/`. Surfaces broken wikilinks, duplicates, stale index entries, tag drift. Reports only — never auto-fixes.
+- **`/compile`** — process `raw/` into `wiki/`. Plan-and-confirm: lists what it will write and which existing claims the new source contradicts, waits for explicit approval, then writes only the wiki articles, marks superseded claims with a `> [!warning] Superseded` callout, updates `_master-index.md`, and appends one `_log.md` entry.
+- **`/audit`** — read-only review of `wiki/`. Surfaces broken wikilinks, duplicates, stale index entries, tag drift. `/audit deep` adds content-level checks: contradictions between articles, stale claims missing a superseded callout, orphans, data gaps. Reports only — never auto-fixes. Its only write is one `_log.md` entry.
 - **`/refine <path>`** — voice-preserving editor pass on a `notes/` file. Fixes typos silently, flags unclear passages with `> [!question]` callouts, never paraphrases. Always shows a diff before applying.
 - **`/refresh-index`** — rebuild `wiki/_master-index.md` from scratch.
 - **`/teach <topic>`** — multi-session tutor grounded in the wiki. New topic starts with a short mission interview; each session writes one lesson to `output/teach/<topic>/sessions/` and tracks progress in `progress.md`. Cites wiki articles, never touches `wiki/` or `notes/`.
@@ -89,8 +90,9 @@ The installer:
 1. Copies `<kit>/templates/.claude/` → `<vault>/.claude/`
 2. Drops a stub `CLAUDE.md` (still containing `{{placeholders}}`)
 3. Caches the pristine template at `<vault>/.claude/.vault-init-template.md`
-4. Creates `raw/`, `wiki/`, `notes/`, `output/` empty directories
-5. Drops a vault-level `README.md`
+4. Drops `wiki/_log.md`, the append-only ops journal (never overwritten on re-run)
+5. Creates `raw/`, `wiki/`, `notes/`, `output/` empty directories
+6. Drops a vault-level `README.md`
 
 After bootstrap, open the vault in Claude Code and run `/vault-init` — an interview fills in the `CLAUDE.md` template.
 

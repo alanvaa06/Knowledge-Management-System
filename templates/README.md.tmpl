@@ -7,6 +7,7 @@ Structured knowledge base scaffolded by [obsidian-vault-kit](https://github.com/
 - `raw/` — drop unprocessed sources here (PDFs, papers, decks, notebooks)
 - `wiki/` — compiled knowledge base, organized by domain
 - `wiki/_master-index.md` — single flat index
+- `wiki/_log.md` — append-only journal of what Claude did to the wiki, and when
 - `notes/` — your handwritten notes{{#if notes_sacred}} (sacred — Claude only edits via `/refine`){{/if}}
 - `output/` — artifacts you explicitly ask Claude to produce
 
@@ -15,7 +16,8 @@ Structured knowledge base scaffolded by [obsidian-vault-kit](https://github.com/
 Open this folder in Claude Code. Available commands:
 
 - `/compile` — process `raw/` into `wiki/`
-- `/audit` — review `wiki/` for issues (read-only)
+- `/audit` — review `wiki/` for structural issues (read-only)
+- `/audit deep` — adds contradiction, stale-claim, orphan, and data-gap checks (slow, run monthly)
 - `/refine <path>` — editor pass on a `notes/` file
 - `/refresh-index` — rebuild the master index
 

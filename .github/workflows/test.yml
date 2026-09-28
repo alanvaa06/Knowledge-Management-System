@@ -1,0 +1,59 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  bash:
+    name: bash (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      # The README promises stock macOS support. Runner images put Homebrew's bash 5 first
+      # on PATH, so shadow it with the system /bin/bash (3.2) that real users have.
+      - name: Use stock macOS bash 3.2
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p "$RUNNER_TEMP/stockbin"
+          ln -sf /bin/bash "$RUNNER_TEMP/stockbin/bash"
+          echo "$RUNNER_TEMP/stockbin" >> "$GITHUB_PATH"
+
+      - name: Tool versions
+        run: |
+          bash --version | head -1
+          command -v awk sed
+          awk --version 2>/dev/null | head -1 || awk -V 2>/dev/null | head -1 || true
+
+      - name: Renderer snapshot tests
+        run: bash tests/render-template.test.sh
+
+      - name: Installer tests
+        run: bash tests/install.test.sh
+
+  powershell:
+    name: powershell (windows-latest)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Renderer snapshot tests
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/render-template.test.ps1
+
+      - name: Installer tests
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/install.test.ps1

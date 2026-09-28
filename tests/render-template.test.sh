@@ -1,18 +1,43 @@
 #!/usr/bin/env bash
+# Snapshot tests for the bash renderer. tests/render-template.test.ps1 runs the same
+# cases against the PowerShell renderer, so both stay in parity with one set of fixtures.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+FIX="$ROOT/tests/fixtures"
+RENDER="$ROOT/templates/.claude/lib/render-template.sh"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-bash "$ROOT/templates/.claude/lib/render-template.sh" \
-  "$ROOT/templates/CLAUDE.md.tmpl" \
-  "$ROOT/tests/fixtures/answers.json" \
-  "$TMP/actual.md"
+FAILED=0
 
-if diff -u "$ROOT/tests/fixtures/expected-CLAUDE.md" "$TMP/actual.md"; then
-  echo "PASS: render matches fixture"
+# case: <name> <template> <answers> <expected>
+check() {
+  local name="$1" template="$2" answers="$3" expected="$4"
+  bash "$RENDER" "$template" "$answers" "$TMP/$name.md"
+  if diff -u "$expected" "$TMP/$name.md"; then
+    echo "PASS: $name"
+  else
+    echo "FAIL: $name"
+    FAILED=1
+  fi
+}
+
+check all-yes "$ROOT/templates/CLAUDE.md.tmpl" "$FIX/answers.json"    "$FIX/expected-CLAUDE.md"
+check all-no  "$ROOT/templates/CLAUDE.md.tmpl" "$FIX/answers-no.json" "$FIX/expected-CLAUDE-no.md"
+check edge    "$FIX/edge.tmpl"                 "$FIX/edge.json"       "$FIX/expected-edge.md"
+
+# Unresolved placeholders must fail and must not write the output file.
+printf 'a {{missing}} b\n' > "$TMP/bad.tmpl"
+printf '{"other":"x"}\n' > "$TMP/bad.json"
+if bash "$RENDER" "$TMP/bad.tmpl" "$TMP/bad.json" "$TMP/bad.md" 2>/dev/null; then
+  echo "FAIL: unresolved placeholder should exit non-zero"
+  FAILED=1
+elif [[ -e "$TMP/bad.md" ]]; then
+  echo "FAIL: unresolved placeholder should not write output"
+  FAILED=1
 else
-  echo "FAIL: render differs from fixture"
-  exit 1
+  echo "PASS: unresolved placeholder rejected"
 fi
+
+exit $FAILED

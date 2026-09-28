@@ -34,7 +34,9 @@ Four folders, each with a single role:
 
 The directionality is one-way: `raw/ → wiki/ → output/`. `notes/` is a reference side-channel — the wiki cites and backlinks notes, never generates from them. `notes/private/` is a query-time side-channel — pulled in only when you ask, and only into the chat response.
 
-The rules are enforced by the operating manual (`CLAUDE.md`) and the slash commands themselves. `compile` refuses to write without your explicit approval of the plan. `audit` is read-only apart from its log entry; any fix it proposes goes through the same approval gate as `compile`. `refine` always shows a diff before touching `notes/`. `notes/private/` is invisible to compile and audit by construction.
+Most rules are instructions: the operating manual (`CLAUDE.md`) and the slash commands tell Claude what it may do, and Claude follows them. `compile` refuses to write without your explicit approval of the plan. `audit` is read-only apart from its log entry; any fix it proposes goes through the same approval gate as `compile`. `refine` always shows a diff before touching `notes/`. `compile` and `audit` are instructed never to read `notes/private/`.
+
+One rule is also enforced by Claude Code itself: the installer ships `.claude/settings.json` with a permission deny rule, `Edit(/raw/**)`, so Claude's file tools cannot modify or create files in `raw/` even if an instruction is ignored. It does not stop a script Claude runs from writing files on its own; for OS-level enforcement, enable Claude Code's [sandbox](https://code.claude.com/docs/en/sandboxing). `notes/private/` has no deny rule on purpose: queries need to read it when you ask.
 
 ## What `notes/private/` unlocks
 
@@ -90,15 +92,16 @@ The installer:
 1. Copies `<kit>/templates/.claude/` → `<vault>/.claude/`
 2. Drops a stub `CLAUDE.md` (still containing `{{placeholders}}`)
 3. Caches the pristine template at `<vault>/.claude/.vault-init-template.md`
-4. Drops `wiki/_master-index.md` (stub, rendered by `/vault-init`) and `wiki/_log.md`, the append-only ops journal (never overwritten on re-run)
-5. Drops a vault-level `README.md`
-6. Creates `raw/`, `wiki/`, `notes/`, `output/` if missing
+4. Drops `.claude/settings.json` with the `Edit(/raw/**)` deny rule (only if the vault has no `settings.json` yet)
+5. Drops `wiki/_master-index.md` (stub, rendered by `/vault-init`) and `wiki/_log.md`, the append-only ops journal (never overwritten on re-run)
+6. Drops a vault-level `README.md`
+7. Creates `raw/`, `wiki/`, `notes/`, `output/` if missing
 
 After bootstrap, open the vault in Claude Code and run `/vault-init` — an interview fills in the `CLAUDE.md` template.
 
 ### Re-running the installer
 
-If the target vault already has a `.claude/` or `CLAUDE.md`, the installer refuses unless you pass `--force`. With `--force`, it overwrites `.claude/`, `CLAUDE.md`, and the vault-level `README.md`, but never touches `raw/`, `notes/`, `output/`, or your wiki articles. `wiki/_log.md` is never overwritten (it is your history), and `wiki/_master-index.md` is replaced only if it still contains unrendered `{{placeholders}}`.
+If the target vault already has a `.claude/` or `CLAUDE.md`, the installer refuses unless you pass `--force`. With `--force`, it overwrites `.claude/`, `CLAUDE.md`, and the vault-level `README.md`, but never touches `raw/`, `notes/`, `output/`, or your wiki articles. `wiki/_log.md` is never overwritten (it is your history), and `wiki/_master-index.md` is replaced only if it still contains unrendered `{{placeholders}}`. An existing `.claude/settings.json` is never overwritten either; if it lacks the `raw/` deny rule, the installer prints the line to add.
 
 ## Tests
 
@@ -106,6 +109,13 @@ If the target vault already has a `.claude/` or `CLAUDE.md`, the installer refus
 bash tests/render-template.test.sh
 bash tests/install.test.sh
 ```
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tests/render-template.test.ps1
+powershell -ExecutionPolicy Bypass -File tests/install.test.ps1
+```
+
+Both renderers are checked against the same fixtures, so a pass on both means they produce identical output. CI runs the bash suite on Ubuntu, on macOS with the stock bash 3.2, and on Windows (Git Bash), plus the PowerShell suite on Windows.
 
 ## License
 

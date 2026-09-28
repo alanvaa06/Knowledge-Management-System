@@ -1,0 +1,105 @@
+# CLAUDE.md — Vault Operating Manual
+
+Read this before touching the vault.
+
+## Jane Doe — staff ML engineer
+staff ML engineer
+
+Voice: standard. Clear, complete sentences. No filler, no hedging. Direct.
+
+## Structure
+- `raw/` — inbox: PDFs, papers, decks, notebooks. You read, never write.
+- `wiki/` — compiled knowledge base. You own it. Flat: files live directly under domain folders (`AI`, `Engineering`). No subfolders, no per-folder `_index.md`.
+- `wiki/_master-index.md` — the one and only index.
+- `wiki/_log.md` — append-only ops journal. Written only by `compile`, `audit`, and `refresh-index`. Never edited by hand.
+- `notes/` — Jane's human-authored notes.
+- `output/` — artifacts Jane explicitly asks for. Never dump compile logs here.
+
+## Directionality
+`raw/ → wiki/ → output/`. `notes/` is a reference side-channel: cite and backlink from wiki articles, never generate from.
+
+## Wiki Conventions
+- Frontmatter: `Writer`, `Link` (if applicable), `tags` (exactly two). Nothing else.
+  - Domain tags: `AI`, `Engineering`.
+  - Default: one domain tag + one topic tag.
+- Dense bullets, tables, `==highlights==`, `[[wikilinks]]`. End every article with `## Key Takeaways` (3–7 bullets).
+- Match the voice of existing articles. No padding phrases.
+- Never create subfolders inside a domain folder.
+- **Contradictions and staleness.** When a new claim conflicts with or supersedes one in an existing article, never silently overwrite. Insert a `> [!warning] Superseded` callout in the older article, linking the newer article with a `[[wikilink]]`, and keep the original claim beneath it. Time-bound claims carry their source date inline (e.g., "as of 2026-03").
+
+Citations: `[[wikilinks]]` to other vault articles only.
+
+## Log
+`wiki/_log.md` is the vault's memory of what was done. Append one entry at the end of every completed `compile`, `audit`, and `refresh-index` run:
+```
+## [YYYY-MM-DD] <op> | <one-line summary>
+- wrote: `slug-a`, `slug-b`
+- updated: `slug-c`
+- flagged: `slug-c` superseded by `slug-a`
+```
+- `<op>` is one of `compile`, `audit`, `audit deep`, `refresh-index`, mirroring the slash command names. Omit empty bullets. `flagged:` means a Superseded callout was written, not merely reported.
+- Name articles by file stem in backticks, never `[[wikilinks]]`, so the log stays out of Obsidian's graph and is never rewritten by link updates on rename.
+- Record file-level actions on `wiki/` only. Never log query content, answers, or any path under `notes/private/`.
+- Append only. Never rewrite or delete past entries. If the file is missing, create it with a `# Log` header first. Read the last few entries at the start of `compile` and `audit` to know what happened recently.
+
+
+## Commands
+
+### `compile`
+Process `raw/` into `wiki/`. MANDATORY plan-and-confirm before writing.
+1. List raw sources to process, target wiki paths, notes to backlink, any new folders, and any claims in the touched articles that the new source contradicts or supersedes. Present in chat.
+2. Wait for explicit "go" / "proceed" / "ok". Revise if asked. Never write files without approval.
+3. After approval: write wiki articles only, applying the contradiction rule to every touched article. Update `_master-index.md`. Append one entry to `_log.md`. Report in chat.
+4. Never write compile reports or plans as files. The `_log.md` entry is the only file-based record.
+5. Never generate wiki articles from `notes/` alone. Scoped `compile notes/X into wiki/X` is the only exception — rare and explicit.
+6. Never write to `raw/`, `notes/`, or `output/` during a compile.
+
+### `audit`
+Read-only review of `wiki/` articles (neither `_master-index.md` nor `_log.md` is an article). Reports only, never auto-fixes. Single exception: appends one entry to `_log.md` when done.
+- Broken `[[wikilinks]]` and missing backlinks.
+- Duplicate or overlapping articles.
+- Stale or missing `_master-index.md` entries.
+- Wiki articles referencing raw sources no longer in `raw/`.
+- Concepts referenced but not defined.
+- Tag conformance.
+- Frontmatter conformance (`Writer`, optional `Link`, `tags` only).
+Pass `deep` to add content-level checks. Expensive: run monthly, not per session.
+- Contradictions between articles.
+- Stale claims superseded by a newer article without a `> [!warning] Superseded` callout.
+- Orphans: articles no other article links to.
+- Data gaps: concepts the wiki leans on that lack a source worth adding to `raw/`.
+Present findings as a plan. Wait for confirmation before applying any fix. Approved fixes append their own `_log.md` entry.
+
+### `query` / `ask`
+Answer a question using `wiki/` first, then `notes/`, then `raw/`.
+1. **Read the graph first.** Before answering, scan `_master-index.md` end-to-end and trace `[[wikilinks]]` between related articles to build a map of what the vault covers. Never answer from a single article in isolation.
+2. Drill into the specific articles surfaced by the graph walk.
+3. Pull from `notes/` when Jane's synthesis is more specific than the wiki. Cite every source with a `[[wikilink]]`.
+4. Default output is the chat response. Write to `output/` only if Jane asks for a file.
+5. If the answer exposes a wiki gap, flag it in chat — don't silently patch during a query.
+
+### `refine`
+Editor pass over a `notes/` file. Voice-preserving, never generative.
+1. Fix typos and obvious slips silently. Preserve voice, headers, `==highlights==`, `[[links]]`, analogies, and bullet structure.
+2. Flag unclear or ambiguous passages with `> [!question]` callouts — never rewrite or invent content to resolve them.
+3. Always present a diff in chat and wait for explicit approval before applying changes to the file.
+4. Never restructure, re-order, or paraphrase. Never pull content into `wiki/` as a side effect.
+
+### `refresh-index`
+Rebuild `_master-index.md` from scratch based on what's in `wiki/`, excluding `_master-index.md` and `_log.md` themselves. Flat grouped list with `[[wikilinks]]` and one-line descriptions. Single index — no per-folder indexes. Append one entry to `_log.md` when done.
+
+### `teach`
+Multi-session tutor grounded in `wiki/`. State lives in `output/teach/<topic-slug>/` — invoking `teach` counts as Jane's explicit ask to write there.
+1. New topic (no `progress.md` yet): interview Jane first — why this topic, what for, prior knowledge. Write the mission into `progress.md`. Never skip; never re-interview an existing topic.
+2. Existing topic: read `progress.md` (Mission, Track, Preferences) and pick the next lesson in the zone of proximal development.
+3. Ground every lesson in `wiki/` via the same graph walk as `query`. Cite with `[[wikilinks]]`. If the wiki is thin, say so and suggest sources for `raw/` — never substitute parametric knowledge silently.
+4. Write one session file per lesson (`sessions/NNNN-name.md`), run it interactively in chat with a retrieval quiz, then append a Track row to `progress.md`.
+5. Never write outside `output/teach/<topic-slug>/`. Never read `notes/private/`. Never edit past session files.
+
+## Hard Don'ts
+- Don't move or delete files in `raw/`.
+- Don't invent citations. If it's not in `raw/` or `notes/`, say so.
+- Don't create subfolders in `wiki/`.
+- Don't write to `_log.md` except to append an entry at the end of `compile`, `audit`, `refresh-index`, or an approved audit fix pass.
+- Don't rewrite articles in generic LLM voice during compile.
+- Don't write any file during `compile` without Jane's explicit approval of the plan.

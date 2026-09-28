@@ -41,6 +41,7 @@ try {
   if (-not (Test-Case 'all-yes' $tmpl (Join-Path $Fix 'answers.json') (Join-Path $Fix 'expected-CLAUDE.md'))) { $failed = $true }
   if (-not (Test-Case 'all-no' $tmpl (Join-Path $Fix 'answers-no.json') (Join-Path $Fix 'expected-CLAUDE-no.md'))) { $failed = $true }
   if (-not (Test-Case 'edge' (Join-Path $Fix 'edge.tmpl') (Join-Path $Fix 'edge.json') (Join-Path $Fix 'expected-edge.md'))) { $failed = $true }
+  if (-not (Test-Case 'private-only' $tmpl (Join-Path $Fix 'answers-private-only.json') (Join-Path $Fix 'expected-CLAUDE-private-only.md'))) { $failed = $true }
 
   # Unresolved placeholders must fail and must not write the output file.
   $badTmpl = Join-Path $Tmp 'bad.tmpl'

@@ -49,6 +49,16 @@ cp "$TEMPLATES/CLAUDE.md.tmpl" "$CWD/CLAUDE.md"
 # Cache pristine template for /vault-init force re-runs
 cp "$TEMPLATES/CLAUDE.md.tmpl" "$CWD/.claude/.vault-init-template.md"
 
+# Permission guardrails (deny Claude's file tools from editing raw/). Copy only if missing:
+# the vault owner may have customized .claude/settings.json, so --force never clobbers it.
+SETTINGS_DST="$CWD/.claude/settings.json"
+SETTINGS_KEPT=0
+if [[ ! -f "$SETTINGS_DST" ]]; then
+  cp "$TEMPLATES/claude-settings.json" "$SETTINGS_DST"
+elif ! grep -qF 'Edit(/raw/**)' "$SETTINGS_DST"; then
+  SETTINGS_KEPT=1
+fi
+
 # Copy master index stub. With --force, only overwrite if the existing file still has {{ markers
 # (i.e., user hasn't substituted/edited it yet). This protects user wiki content.
 mkdir -p "$CWD/wiki"
@@ -75,6 +85,10 @@ fi
 for d in raw wiki notes output; do
   mkdir -p "$CWD/$d"
 done
+
+if [[ $SETTINGS_KEPT -eq 1 ]]; then
+  echo "Kept existing .claude/settings.json. To protect raw/, add \"Edit(/raw/**)\" to permissions.deny (see $TEMPLATES/claude-settings.json)."
+fi
 
 cat <<EOF
 Vault scaffold installed at: $CWD

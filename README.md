@@ -25,7 +25,7 @@ Four folders, each with a single role:
 
 | Folder | Role | LLM access |
 |---|---|---|
-| `raw/` | Inbox for unprocessed sources (PDFs, papers, decks, transcripts) | Read-only |
+| `raw/` | Inbox for unprocessed sources (PDFs, papers, decks, transcripts). Delete a source after compiling it if you like | Read-only |
 | `wiki/` | Compiled knowledge base. Flat, organized by domain, indexed by `_master-index.md` | Read + write (compile target) |
 | `wiki/_log.md` | Append-only ops journal. What `compile`, `audit`, and `refresh-index` did, and when | Append one entry per run. Never rewritten |
 | `notes/` | Your handwritten notes. Sacred — voice-preserving | Read + cite. Edits only via `/refine` (diff-and-confirm) |
@@ -57,7 +57,7 @@ The wall stays intact. Private synthesis informs the answer; the answer stays in
 The kit ships with six vault-scoped slash commands and one auto-triggered skill, all loaded after install:
 
 - **`/vault-init`** — one-time interview that tailors `CLAUDE.md` to you (your name, domains, tag policy, voice).
-- **`/compile`** — process `raw/` into `wiki/`. Plan-and-confirm: lists what it will write and which existing claims the new source contradicts, waits for explicit approval, then writes only the wiki articles, marks superseded claims with a `> [!warning] Superseded` callout, updates `_master-index.md`, and appends one `_log.md` entry.
+- **`/compile`** — process `raw/` into `wiki/`. A source is pending until some article lists it in its `Source` frontmatter, so compiled files can be deleted from `raw/` without being recompiled or breaking anything; `Source` stays as the provenance record. Plan-and-confirm: lists what it will write and which existing claims the new source contradicts, waits for explicit approval, then writes only the wiki articles, marks superseded claims with a `> [!warning] Superseded` callout, updates `_master-index.md`, and appends one `_log.md` entry.
 - **`/audit`** — read-only review of `wiki/`. Surfaces broken wikilinks, duplicates, stale index entries, tag drift. `/audit deep` adds content-level checks: contradictions between articles, stale claims missing a superseded callout, orphans, data gaps. Reports only — never auto-fixes. The audit pass writes nothing but one `_log.md` entry; fixes you approve run as a separate gated pass and append their own entry.
 - **`/refine <path>`** — voice-preserving editor pass on a `notes/` file. Fixes typos silently, flags unclear passages with `> [!question]` callouts, never paraphrases. Always shows a diff before applying.
 - **`/refresh-index`** — rebuild `wiki/_master-index.md` from scratch. Shows a diff, waits for approval, then writes the index and appends one `_log.md` entry.

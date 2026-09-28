@@ -8,7 +8,7 @@ Read this before touching the vault.
 {{voice_paragraph}}
 
 ## Structure
-- `raw/` — inbox: PDFs, papers, decks, notebooks. You read, never write.
+- `raw/` — inbox: PDFs, papers, decks, notebooks. You read, never write. {{owner_first_name}} may delete a source once it is compiled; that is expected, not a problem.
 - `wiki/` — compiled knowledge base. You own it. Flat: files live directly under domain folders ({{domain_tag_list}}). No subfolders, no per-folder `_index.md`.
 - `wiki/_master-index.md` — the one and only index.
 - `wiki/_log.md` — append-only ops journal. Written only by `compile`, `audit`, and `refresh-index`. Never edited by hand.
@@ -19,7 +19,8 @@ Read this before touching the vault.
 `raw/ → wiki/ → output/`. `notes/` is a reference side-channel: cite and backlink from wiki articles, never generate from.
 
 ## Wiki Conventions
-- Frontmatter: `Writer`, `Link` (if applicable), `tags` ({{tag_count_rule}}). Nothing else.
+- Frontmatter: `Writer`, `Link` (if applicable), `Source`, `tags` ({{tag_count_rule}}). Nothing else.
+- `Source` — list of the `raw/` paths the article was compiled from, as plain text (e.g. `raw/q3-report.pdf`), never `[[wikilinks]]`. Append a path when a new source updates the article; never remove one. It is the provenance record and how `compile` knows which sources are done, so it stays valid after the file leaves `raw/`.
 {{tag_policy_paragraph}}
 - Dense bullets, tables, `==highlights==`, `[[wikilinks]]`. End every article with `## Key Takeaways` (3–7 bullets).
 - Match the voice of existing articles. No padding phrases.
@@ -47,66 +48,32 @@ Read this before touching the vault.
 - Notes never trigger wiki generation on their own. Wiki articles are born from `raw/`.
 - When a raw source overlaps a note, backlink to the note with a `[[wikilink]]`.
 {{#if private_notes}}
-- **`notes/private/`** — completely invisible to `compile` and `audit`. During `query`, read only if {{owner_first_name}} explicitly references it (e.g., "how does my idea in private/X connect to wiki/Y"). Answers stay in chat — never written to `wiki/` or `output/` unless {{owner_first_name}} asks.
+- **`notes/private/`** — completely invisible to `compile` and `audit`. During a query, read only if {{owner_first_name}} explicitly references it (e.g., "how does my idea in private/X connect to wiki/Y"). Answers stay in chat — never written to `wiki/` or `output/` unless {{owner_first_name}} asks. In scope for `refine` only when {{owner_first_name}} names the file explicitly.
 {{/if}}
 - **Exception — `refine`:** editor role only. Fix typos silently. Preserve voice, headers, `==highlights==`, `[[links]]`, analogies. Flag unclear spots with `> [!question]` callouts — never invent. Always show a diff before applying.
 {{/if}}
 
 ## Commands
+Step-by-step procedures live in `.claude/commands/`. When {{owner_first_name}} asks for one of these operations, even in plain words, run the matching command instead of improvising.
 
-### `compile`
-Process `raw/` into `wiki/`. MANDATORY plan-and-confirm before writing.
-1. List raw sources to process, target wiki paths, notes to backlink, any new folders, and any claims in the touched articles that the new source contradicts or supersedes. Present in chat.
-2. Wait for explicit "go" / "proceed" / "ok". Revise if asked. Never write files without approval.
-3. After approval: write wiki articles only, applying the contradiction rule to every touched article. Update `_master-index.md`. Append one entry to `_log.md`. Report in chat.
-4. Never write compile reports or plans as files. The `_log.md` entry is the only file-based record.
-5. Never generate wiki articles from `notes/` alone. Scoped `compile notes/X into wiki/X` is the only exception — rare and explicit.
-6. Never write to `raw/`, `notes/`, or `output/` during a compile.
+| Command | Does | Writes |
+|---|---|---|
+| `/compile` | Process `raw/` into `wiki/` | Wiki articles, `_master-index.md`, `_log.md` |
+| `/audit [deep]` | Review `wiki/`; `deep` adds content checks (monthly) | `_log.md` entry only |
+| `/refresh-index` | Rebuild `_master-index.md` | `_master-index.md`, `_log.md` |
+| `/refine <path>` | Voice-preserving editor pass on one `notes/` file | That file |
+| `/teach <topic>` | Multi-session tutor grounded in `wiki/` | `output/teach/<topic-slug>/` only |
+| `/vault-init [force]` | Re-run the interview that renders this file | `CLAUDE.md` |
 
-### `audit`
-Read-only review of `wiki/` articles (neither `_master-index.md` nor `_log.md` is an article). Reports only, never auto-fixes. Single exception: appends one entry to `_log.md` when done.
-- Broken `[[wikilinks]]` and missing backlinks.
-- Duplicate or overlapping articles.
-- Stale or missing `_master-index.md` entries.
-- Wiki articles referencing raw sources no longer in `raw/`.
-- Concepts referenced but not defined.
-- Tag conformance.
-- Frontmatter conformance (`Writer`, optional `Link`, `tags` only).
-Pass `deep` to add content-level checks. Expensive: run monthly, not per session.
-- Contradictions between articles.
-- Stale claims superseded by a newer article without a `> [!warning] Superseded` callout.
-- Orphans: articles no other article links to.
-- Data gaps: concepts the wiki leans on that lack a source worth adding to `raw/`.
-Present findings as a plan. Wait for confirmation before applying any fix. Approved fixes append their own `_log.md` entry.
+Questions about vault content go through the `vault-query` skill: wiki first, then notes, then raw; answer in chat.
 
-### `query` / `ask`
-Answer a question using `wiki/` first, then `notes/`, then `raw/`.
-1. **Read the graph first.** Before answering, scan `_master-index.md` end-to-end and trace `[[wikilinks]]` between related articles to build a map of what the vault covers. Never answer from a single article in isolation.
-2. Drill into the specific articles surfaced by the graph walk.
-3. Pull from `notes/` when {{owner_first_name}}'s synthesis is more specific than the wiki. Cite every source with a `[[wikilink]]`.
-4. Default output is the chat response. Write to `output/` only if {{owner_first_name}} asks for a file.
-5. If the answer exposes a wiki gap, flag it in chat — don't silently patch during a query.
-
-### `refine`
-Editor pass over a `notes/` file. Voice-preserving, never generative.
-1. Fix typos and obvious slips silently. Preserve voice, headers, `==highlights==`, `[[links]]`, analogies, and bullet structure.
-2. Flag unclear or ambiguous passages with `> [!question]` callouts — never rewrite or invent content to resolve them.
-3. Always present a diff in chat and wait for explicit approval before applying changes to the file.
-4. Never restructure, re-order, or paraphrase. Never pull content into `wiki/` as a side effect.
-{{#if private_notes}}
-5. `notes/private/` is in scope for `refine` only when {{owner_first_name}} names the file explicitly.
-{{/if}}
-
-### `refresh-index`
-Rebuild `_master-index.md` from scratch based on what's in `wiki/`, excluding `_master-index.md` and `_log.md` themselves. Flat grouped list with `[[wikilinks]]` and one-line descriptions. Single index — no per-folder indexes. Append one entry to `_log.md` when done.
-
-### `teach`
-Multi-session tutor grounded in `wiki/`. State lives in `output/teach/<topic-slug>/` — invoking `teach` counts as {{owner_first_name}}'s explicit ask to write there.
-1. New topic (no `progress.md` yet): interview {{owner_first_name}} first — why this topic, what for, prior knowledge. Write the mission into `progress.md`. Never skip; never re-interview an existing topic.
-2. Existing topic: read `progress.md` (Mission, Track, Preferences) and pick the next lesson in the zone of proximal development.
-3. Ground every lesson in `wiki/` via the same graph walk as `query`. Cite with `[[wikilinks]]`. If the wiki is thin, say so and suggest sources for `raw/` — never substitute parametric knowledge silently.
-4. Write one session file per lesson (`sessions/NNNN-name.md`), run it interactively in chat with a retrieval quiz, then append a Track row to `progress.md`.
-5. Never write outside `output/teach/<topic-slug>/`. Never read `notes/private/`. Never edit past session files.
+## Approval Gates
+These hold whether or not a command file is loaded.
+- `compile`: present the plan in chat and get explicit approval ("go" / "proceed" / "ok" / "yes") before writing any file. A rejected plan writes nothing, including `_log.md`.
+- `audit`: never modifies a wiki article. Fixes are a separate pass with their own plan and approval, and their own `_log.md` entry.
+- `refresh-index` and `refine`: show the diff in chat; write only on approval.
+- `teach`: invoking it counts as {{owner_first_name}}'s explicit ask to write in `output/teach/<topic-slug>/`, and nowhere else.
+- Plans and reports live in chat, never in files. `_log.md` is the only file-based record of vault operations.
 
 ## Hard Don'ts
 {{#if notes_sacred}}
@@ -116,8 +83,7 @@ Multi-session tutor grounded in `wiki/`. State lives in `output/teach/<topic-slu
 {{#if output_explicit_only}}
 - Don't write to `output/` unless {{owner_first_name}} explicitly asks.
 {{/if}}
-- Don't invent citations. If it's not in `raw/` or `notes/`, say so.
+- Don't invent citations. If no wiki article, `raw/` file, or note backs a claim, say so.
 - Don't create subfolders in `wiki/`.
 - Don't write to `_log.md` except to append an entry at the end of `compile`, `audit`, `refresh-index`, or an approved audit fix pass.
 - Don't rewrite articles in generic LLM voice during compile.
-- Don't write any file during `compile` without {{owner_first_name}}'s explicit approval of the plan.

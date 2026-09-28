@@ -1,6 +1,6 @@
 ---
 name: vault-query
-description: Use when the user asks a question that should be answered from the vault — reads wiki/_master-index.md graph first, walks wikilinks between related articles, then drills into specific articles. Cites every source with a wikilink. Never patches the wiki silently.
+description: Answer a question from the vault — reads wiki/_master-index.md graph first, walks wikilinks between related articles, then drills into specific articles. Use when the user asks "what does the vault say about…", "summarize what we have on…", "how do X and Y relate?", or any factual question whose answer plausibly lives in wiki/ or notes/. Cites every source with a wikilink. Never patches the wiki silently. Do NOT use for compile/audit/refine/refresh-index runs, code or file-editing tasks, or questions about files outside the vault.
 ---
 
 # vault-query

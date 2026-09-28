@@ -26,6 +26,8 @@ test -f .claude/commands/teach.md || { echo "FAIL: teach command not copied"; ex
 test -f .claude/skills/vault-query/SKILL.md || { echo "FAIL: vault-query skill not copied"; exit 1; }
 test -f .claude/lib/render-template.sh || { echo "FAIL: renderer not copied"; exit 1; }
 test -f .claude/lib/render-template.ps1 || { echo "FAIL: PS renderer not copied"; exit 1; }
+test -f .claude/settings.json || { echo "FAIL: .claude/settings.json not created"; exit 1; }
+grep -qF 'Edit(/raw/**)' .claude/settings.json || { echo "FAIL: settings.json missing raw/ deny rule"; exit 1; }
 
 # Required directories
 for d in raw wiki notes output; do
@@ -50,7 +52,10 @@ echo "sentinel" > notes/sentinel.txt
 echo "sentinel" > output/sentinel.txt
 echo "user wiki article" > wiki/foo.md
 echo "## [2026-01-01] compile | sentinel entry" >> wiki/_log.md
-bash "$KIT/install.sh" --force
+echo '{"custom": true}' > .claude/settings.json
+FORCE_OUT="$(bash "$KIT/install.sh" --force)"
+test "$(cat .claude/settings.json)" = '{"custom": true}' || { echo "FAIL: --force overwrote user .claude/settings.json"; exit 1; }
+echo "$FORCE_OUT" | grep -q 'Kept existing .claude/settings.json' || { echo "FAIL: no hint printed when settings.json lacks the raw/ deny rule"; exit 1; }
 test "$(cat raw/sentinel.txt)" = "sentinel" || { echo "FAIL: --force touched raw/"; exit 1; }
 test "$(cat notes/sentinel.txt)" = "sentinel" || { echo "FAIL: --force touched notes/"; exit 1; }
 test "$(cat output/sentinel.txt)" = "sentinel" || { echo "FAIL: --force touched output/"; exit 1; }

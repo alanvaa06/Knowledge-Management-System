@@ -47,6 +47,16 @@ Copy-Item -Force -LiteralPath (Join-Path $Templates 'CLAUDE.md.tmpl') -Destinati
 # Cache pristine template for /vault-init force re-runs
 Copy-Item -Force -LiteralPath (Join-Path $Templates 'CLAUDE.md.tmpl') -Destination (Join-Path $DotClaude '.vault-init-template.md')
 
+# Permission guardrails (deny Claude's file tools from editing raw/). Copy only if missing:
+# the vault owner may have customized .claude/settings.json, so -Force never clobbers it.
+$SettingsPath = Join-Path $DotClaude 'settings.json'
+$SettingsKept = $false
+if (-not (Test-Path -LiteralPath $SettingsPath)) {
+  Copy-Item -LiteralPath (Join-Path $Templates 'claude-settings.json') -Destination $SettingsPath
+} elseif (-not (Get-Content -Raw -LiteralPath $SettingsPath).Contains('Edit(/raw/**)')) {
+  $SettingsKept = $true
+}
+
 # Master index: only overwrite if missing OR (-Force AND existing file still has {{ markers).
 $WikiDir = Join-Path $Cwd 'wiki'
 if (-not (Test-Path -LiteralPath $WikiDir)) {
@@ -82,6 +92,10 @@ foreach ($d in @('raw', 'wiki', 'notes', 'output')) {
   if (-not (Test-Path -LiteralPath $p)) {
     New-Item -ItemType Directory -Path $p | Out-Null
   }
+}
+
+if ($SettingsKept) {
+  Write-Output "Kept existing .claude/settings.json. To protect raw/, add ""Edit(/raw/**)"" to permissions.deny (see $(Join-Path $Templates 'claude-settings.json'))."
 }
 
 Write-Output "Vault scaffold installed at: $Cwd"

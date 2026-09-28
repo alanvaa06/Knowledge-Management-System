@@ -17,7 +17,7 @@ Answer a user question by reading the vault. Wiki first, then notes, then raw â€
 
 ## Hard don'ts
 
-- Never invent citations. If a claim does not have a source in `raw/` or `notes/`, say so.
+- Never invent citations. If no wiki article, `raw/` file, or note backs a claim, say so. When asked where a wiki claim comes from, the article's `Source` frontmatter names the original file; it may no longer be in `raw/`, so say so rather than guessing its content.
 - Never write to `wiki/`, `notes/`, or `raw/` during a query.
 - Never read `notes/private/` unless the user names a specific path inside it.
 

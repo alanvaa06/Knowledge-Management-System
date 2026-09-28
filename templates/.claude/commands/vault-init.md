@@ -35,7 +35,7 @@ Ask each question, wait for the answer, then move to the next. Be terse.
 
 ## Render
 
-1. Write a JSON answers file to `.claude/.vault-init-answers.json` with all derived keys.
+1. Write a JSON answers file to `.claude/.vault-init-answers.json` with all derived keys. Flat object, string values only, UTF-8. Write non-ASCII characters (accents, em-dashes) literally, never as `\uXXXX` escapes: the bash renderer does not decode them.
 2. Invoke the shared renderer:
    - On macOS/Linux/Git Bash: `bash .claude/lib/render-template.sh .claude/.vault-init-template.md .claude/.vault-init-answers.json CLAUDE.md`
    - On Windows PowerShell: `powershell -ExecutionPolicy Bypass -File .claude/lib/render-template.ps1 .claude/.vault-init-template.md .claude/.vault-init-answers.json CLAUDE.md`

@@ -12,7 +12,7 @@ Voice: standard. Clear, complete sentences. No filler, no hedging. Direct.
 - `wiki/` — compiled knowledge base. You own it. Flat: files live directly under domain folders (`AI`, `Engineering`). No subfolders, no per-folder `_index.md`.
 - `wiki/_master-index.md` — the one and only index.
 - `wiki/_log.md` — append-only ops journal. Written only by `compile`, `audit`, and `refresh-index`. Never edited by hand.
-- `notes/` — Jane's human-authored notes. SACRED. Read-only.
+- `notes/` — Jane's human-authored notes.
 - `notes/private/` — Jane's private synthesis. Never persisted anywhere; see Private Notes Rules.
 - `output/` — artifacts Jane explicitly asks for. Never dump compile logs here.
 
@@ -44,12 +44,6 @@ Citations: `[[wikilinks]]` to other vault articles only.
 - Record file-level actions on `wiki/` only. Never log query content, answers, or any path under `notes/private/`.
 - Append only. Never rewrite or delete past entries. If the file is missing, create it with a `# Log` header first. Read the last few entries at the start of `compile` and `audit` to know what happened recently.
 
-## notes/ — Sacred Rules
-- Never edit, restructure, or paraphrase notes. Never copy their content into the wiki.
-- Notes never trigger wiki generation on their own. Wiki articles are born from `raw/`.
-- When a raw source overlaps a note, backlink to the note with a `[[wikilink]]`.
-- **Exception — `refine`:** editor role only. Fix typos silently. Preserve voice, headers, `==highlights==`, `[[links]]`, analogies. Flag unclear spots with `> [!question]` callouts — never invent. Always show a diff before applying.
-
 ## notes/private/ — Private Notes Rules
 - `notes/private/` is completely invisible to `compile` and `audit`.
 - During a query, read it only if Jane explicitly references it (e.g., "how does my idea in private/X connect to wiki/Y"). Answers stay in chat — never written to `wiki/` or `output/` unless Jane asks.
@@ -78,7 +72,6 @@ These hold whether or not a command file is loaded.
 - Plans and reports live in chat, never in files. `_log.md` is the only file-based record of vault operations.
 
 ## Hard Don'ts
-- Don't edit `notes/` outside of `refine`.
 - Don't move or delete files in `raw/`.
 - Don't write to `output/` unless Jane explicitly asks.
 - Don't invent citations. If no wiki article, `raw/` file, or note backs a claim, say so.

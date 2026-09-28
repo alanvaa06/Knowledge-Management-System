@@ -43,7 +43,6 @@ Citations: `[[wikilinks]]` to other vault articles only.
 - Record file-level actions on `wiki/` only. Never log query content, answers, or any path under `notes/private/`.
 - Append only. Never rewrite or delete past entries. If the file is missing, create it with a `# Log` header first. Read the last few entries at the start of `compile` and `audit` to know what happened recently.
 
-
 ## Commands
 Step-by-step procedures live in `.claude/commands/`. When Jane asks for one of these operations, even in plain words, run the matching command instead of improvising.
 

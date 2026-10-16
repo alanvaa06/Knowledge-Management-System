@@ -22,7 +22,7 @@ try {
   if ($r.Code -ne 0) { Fail "fresh install exited $($r.Code)" }
 
   foreach ($f in @('CLAUDE.md', 'README.md', 'wiki/_master-index.md', 'wiki/_log.md',
-                   '.claude/.vault-init-template.md', '.claude/settings.json',
+                   '.claude/.vault-init-template.md',
                    '.claude/commands/compile.md', '.claude/commands/audit.md',
                    '.claude/commands/refine.md', '.claude/commands/refresh-index.md',
                    '.claude/commands/teach.md', '.claude/commands/vault-init.md',
@@ -33,7 +33,7 @@ try {
   foreach ($d in @('raw', 'wiki', 'notes', 'output')) {
     if (-not (Test-Path -LiteralPath $d -PathType Container)) { Fail "$d/ not created" }
   }
-  if (-not (Get-Content -Raw -LiteralPath '.claude/settings.json').Contains('Edit(/raw/**)')) { Fail 'settings.json missing raw/ deny rule' }
+  if (Test-Path -LiteralPath '.claude/settings.json') { Fail 'installer must not create .claude/settings.json' }
   if ((Get-Content -Raw -LiteralPath 'README.md').Contains('{{')) { Fail 'vault README.md ships with unrendered placeholders' }
   if (-not (Get-Content -Raw -LiteralPath 'CLAUDE.md').Contains('{{owner_name}}')) { Fail 'CLAUDE.md should still contain {{owner_name}}' }
 
@@ -56,7 +56,7 @@ try {
   if ((Get-Content -Raw -LiteralPath 'wiki/foo.md').Trim() -ne 'user wiki article') { Fail '-Force touched wiki/foo.md' }
   if (-not (Get-Content -Raw -LiteralPath 'wiki/_log.md').Contains('sentinel entry')) { Fail '-Force overwrote wiki/_log.md' }
   if ((Get-Content -Raw -LiteralPath '.claude/settings.json').Trim() -ne '{"custom": true}') { Fail '-Force overwrote user .claude/settings.json' }
-  if (-not $r.Out.Contains('Kept existing .claude/settings.json')) { Fail 'no hint printed when settings.json lacks the raw/ deny rule' }
+  if ($r.Out.Contains('settings.json')) { Fail 'installer still prints a settings.json hint' }
 
   # -Force must not nest copied folders (Copy-Item quirk: .claude/commands/commands).
   if (Test-Path -LiteralPath '.claude/commands/commands') { Fail '-Force nested .claude/commands/commands' }

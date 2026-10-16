@@ -25,7 +25,7 @@ Four folders, each with a single role:
 
 | Folder | Role | LLM access |
 |---|---|---|
-| `raw/` | Inbox for unprocessed sources (PDFs, papers, decks, transcripts). Delete a source after compiling it if you like | Read-only |
+| `raw/` | Inbox for unprocessed sources (PDFs, papers, decks, transcripts), plus research an agent saves for you under `raw/research/`. Delete a source after compiling it if you like | Read-only, except new files under `raw/research/` when you ask |
 | `wiki/` | Compiled knowledge base. Flat, organized by domain, indexed by `_master-index.md` | Read + write (compile target) |
 | `wiki/_log.md` | Append-only ops journal. What `compile`, `audit`, and `refresh-index` did, and when | Append one entry per run. Never rewritten |
 | `notes/` | Your handwritten notes. Sacred — voice-preserving | Read + cite. Edits only via `/refine` (diff-and-confirm) |
@@ -36,7 +36,7 @@ The directionality is one-way: `raw/ → wiki/ → output/`. `notes/` is a refer
 
 Most rules are instructions: the operating manual (`CLAUDE.md`) and the slash commands tell Claude what it may do, and Claude follows them. `compile` refuses to write without your explicit approval of the plan. `audit` is read-only apart from its log entry; any fix it proposes goes through the same approval gate as `compile`. `refine` always shows a diff before touching `notes/`. `compile` and `audit` are instructed never to read `notes/private/`.
 
-One rule is also enforced by Claude Code itself: the installer ships `.claude/settings.json` with a permission deny rule, `Edit(/raw/**)`, so Claude's file tools cannot modify or create files in `raw/` even if an instruction is ignored. It does not stop a script Claude runs from writing files on its own; for OS-level enforcement, enable Claude Code's [sandbox](https://code.claude.com/docs/en/sandboxing). `notes/private/` has no deny rule on purpose: queries need to read it when you ask.
+`raw/` is add-only, by instruction. Ask an agent to save research there (for example, "run /deep-research on X and save the findings to raw") and it creates a new `raw/research/<slug>/` folder; it never modifies, moves, or deletes what is already in `raw/`. `/compile` later treats that folder as one secondary source and cites the original URLs it gives. Earlier versions enforced a stricter rule with a Claude Code permission deny, `Edit(/raw/**)`, but it blocked every write, wanted ones included, and Claude Code permission rules cannot tell creating a file from changing one. For OS-level enforcement of any folder, enable Claude Code's [sandbox](https://code.claude.com/docs/en/sandboxing).
 
 ## What `notes/private/` unlocks
 
@@ -92,16 +92,19 @@ The installer:
 1. Copies `<kit>/templates/.claude/` → `<vault>/.claude/`
 2. Drops a stub `CLAUDE.md` (still containing `{{placeholders}}`)
 3. Caches the pristine template at `<vault>/.claude/.vault-init-template.md`
-4. Drops `.claude/settings.json` with the `Edit(/raw/**)` deny rule (only if the vault has no `settings.json` yet)
-5. Drops `wiki/_master-index.md` (stub, rendered by `/vault-init`) and `wiki/_log.md`, the append-only ops journal (never overwritten on re-run)
-6. Drops a vault-level `README.md`
-7. Creates `raw/`, `wiki/`, `notes/`, `output/` if missing
+4. Drops `wiki/_master-index.md` (stub, rendered by `/vault-init`) and `wiki/_log.md`, the append-only ops journal (never overwritten on re-run)
+5. Drops a vault-level `README.md`
+6. Creates `raw/`, `wiki/`, `notes/`, `output/` if missing
 
 After bootstrap, open the vault in Claude Code and run `/vault-init` — an interview fills in the `CLAUDE.md` template.
 
 ### Re-running the installer
 
-If the target vault already has a `.claude/` or `CLAUDE.md`, the installer refuses unless you pass `--force`. With `--force`, it overwrites `.claude/`, `CLAUDE.md`, and the vault-level `README.md`, but never touches `raw/`, `notes/`, `output/`, or your wiki articles. `wiki/_log.md` is never overwritten (it is your history), and `wiki/_master-index.md` is replaced only if it still contains unrendered `{{placeholders}}`. An existing `.claude/settings.json` is never overwritten either; if it lacks the `raw/` deny rule, the installer prints the line to add.
+If the target vault already has a `.claude/` or `CLAUDE.md`, the installer refuses unless you pass `--force`. With `--force`, it overwrites `.claude/`, `CLAUDE.md`, and the vault-level `README.md`, but never touches `raw/`, `notes/`, `output/`, or your wiki articles. `wiki/_log.md` is never overwritten (it is your history), and `wiki/_master-index.md` is replaced only if it still contains unrendered `{{placeholders}}`. The installer never creates or touches `.claude/settings.json`.
+
+### Upgrading from a version with the `raw/` deny rule
+
+Vaults installed before `raw/` became add-only have `"Edit(/raw/**)"` under `permissions.deny` in `.claude/settings.json`, and the installer never edits that file, even with `--force`. Remove that entry (or the whole file, if the rule was all it held) so agents can save research to `raw/research/`. Re-run the installer with `--force` to pick up the new `CLAUDE.md` template and commands, then `/vault-init force`.
 
 ## Tests
 

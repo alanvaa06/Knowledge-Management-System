@@ -25,7 +25,7 @@ Usage: `/audit` (structural, fast) or `/audit deep` (adds content-level checks, 
    - **Contradictions** — two articles asserting incompatible claims about the same thing. Quote both, with file paths.
    - **Stale claims** — a claim superseded by a newer article that lacks the `> [!warning] Superseded` callout required by `CLAUDE.md`. Also list here, marked "undated", time-bound claims with no inline source date (`CLAUDE.md` requires one).
    - **Orphans** — articles with no inbound `[[wikilink]]` from any other article (the index does not count).
-   - **Data gaps** — concepts the wiki leans on repeatedly that have no article. Check `raw/` by filename only, never open sources; if a raw file listed in no article's `Source` plausibly covers the concept, report it as uncompiled rather than a gap. Suggest what kind of source would fill each true gap.
+   - **Data gaps** — concepts the wiki leans on repeatedly that have no article. Check `raw/` by filename only, never open sources; if a raw file covered by no article's `Source` (directly or through a folder entry ending in `/`) plausibly covers the concept, report it as uncompiled rather than a gap. Suggest what kind of source would fill each true gap.
 5. **Present all findings in chat**, grouped by category, with file paths and line numbers. Deep findings go in their own group.
 6. **Append one entry to `wiki/_log.md`**: `## [YYYY-MM-DD] audit | <N> findings` or `## [YYYY-MM-DD] audit deep | <N> findings`, where N counts every item listed in step 5, suggestions included. Header line only, no bullets: findings are not file-level actions, and an audit writes no callouts. If the file is missing, create it with a `# Log` header first. This is the only file write an audit pass performs.
 7. **Fixes are a separate, gated pass.** If the user asks you to fix specific findings, present a fix plan and wait for approval (same gate as `/compile`). Fixes to superseded claims use the callout rule from `CLAUDE.md`, never a rewrite. After applying approved fixes, append its own entry, `## [YYYY-MM-DD] audit | fixes applied`, with `updated:` / `flagged:` bullets listing only what was actually written. Fixes never create new wiki articles; that is `/compile`'s job from a `raw/` source.
@@ -36,4 +36,4 @@ Usage: `/audit` (structural, fast) or `/audit deep` (adds content-level checks, 
 - Never run deep checks unless `deep` was passed. They are expensive.
 - Never read `notes/private/` (if that folder exists). Never mention it in `_log.md`.
 - Never write a report file. Findings live in chat.
-- Never flag a `Source` path whose file is gone from `raw/`. Deleting compiled sources is expected; `Source` is the historical record.
+- Never flag a `Source` entry whose file or folder is gone from `raw/`. Deleting compiled sources is expected; `Source` is the historical record.

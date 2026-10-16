@@ -8,7 +8,7 @@ staff ML engineer
 Voice: standard. Clear, complete sentences. No filler, no hedging. Direct.
 
 ## Structure
-- `raw/` — inbox: PDFs, papers, decks, notebooks. You read, never write. Jane may delete a source once it is compiled; that is expected, not a problem.
+- `raw/` — inbox: PDFs, papers, decks, notebooks. You read it. The one write allowed is new research under `raw/research/`, on request; see raw/ — Agent Research. Jane may delete a source once it is compiled; that is expected, not a problem.
 - `wiki/` — compiled knowledge base. You own it. Flat: files live directly under domain folders (`AI`, `Engineering`). No subfolders, no per-folder `_index.md`.
 - `wiki/_master-index.md` — the one and only index.
 - `wiki/_log.md` — append-only ops journal. Written only by `compile`, `audit`, and `refresh-index`. Never edited by hand.
@@ -18,9 +18,18 @@ Voice: standard. Clear, complete sentences. No filler, no hedging. Direct.
 ## Directionality
 `raw/ → wiki/ → output/`. `notes/` is a reference side-channel: cite and backlink from wiki articles, never generate from.
 
+## raw/ — Agent Research
+Jane can ask you to save research (a deep-research run, a web search, gathered sources) into `raw/` for a later `compile`. That request is the only time you write to `raw/`.
+- Write only new files, only under `raw/research/<slug>/`, where `<slug>` is a short kebab-case name for the topic. One research run, one folder.
+- Never write into an existing `raw/research/` folder. If the slug is taken, append `-2`, `-3`, and so on.
+- Never modify, rename, move, or delete an existing file anywhere in `raw/`, earlier research included.
+- Never write to `raw/` as a side effect of `compile`, `audit`, `refresh-index`, `refine`, `teach`, or a query.
+- Everything under `raw/research/` is an agent's synthesis, not a primary source, and `compile` treats it that way. Sources Jane drops in by hand live elsewhere in `raw/`.
+- No `_log.md` entry: the log records `wiki/` actions only.
+
 ## Wiki Conventions
 - Frontmatter: `Writer`, `Link` (if applicable), `Source`, `tags` (exactly two). Nothing else.
-- `Source` — list of the `raw/` paths the article was compiled from, as plain text (e.g. `raw/q3-report.pdf`), never `[[wikilinks]]`. Append a path when a new source updates the article; never remove one. It is the provenance record and how `compile` knows which sources are done, so it stays valid after the file leaves `raw/`.
+- `Source` — list of the `raw/` paths the article was compiled from, as plain text (e.g. `raw/q3-report.pdf`), never `[[wikilinks]]`. Append a path when a new source updates the article; never remove one. It is the provenance record and how `compile` knows which sources are done, so it stays valid after the file leaves `raw/`. An entry ending in `/` (e.g. `raw/research/eu-ai-act/`) covers every file under that folder; `compile` writes one for each `raw/research/` folder.
   - Domain tags: `AI`, `Engineering`.
   - Default: one domain tag + one topic tag.
 - Dense bullets, tables, `==highlights==`, `[[wikilinks]]`. End every article with `## Key Takeaways` (3–7 bullets).
@@ -63,10 +72,11 @@ These hold whether or not a command file is loaded.
 - `audit`: never modifies a wiki article. Fixes are a separate pass with their own plan and approval, and their own `_log.md` entry.
 - `refresh-index` and `refine`: show the diff in chat; write only on approval.
 - `teach`: invoking it counts as Jane's explicit ask to write in `output/teach/<topic-slug>/`, and nowhere else.
+- Saving research to `raw/`: Jane's request counts as the explicit ask to create one new `raw/research/<slug>/` folder, and nothing else in `raw/`.
 - Plans and reports live in chat, never in files. `_log.md` is the only file-based record of vault operations.
 
 ## Hard Don'ts
-- Don't move or delete files in `raw/`.
+- Don't modify, move, or delete existing files in `raw/`. New files go only under `raw/research/`, and only when Jane asks.
 - Don't invent citations. If no wiki article, `raw/` file, or note backs a claim, say so.
 - Don't create subfolders in `wiki/`.
 - Don't write to `_log.md` except to append an entry at the end of `compile`, `audit`, `refresh-index`, or an approved audit fix pass.

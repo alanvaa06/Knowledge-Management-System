@@ -37,6 +37,18 @@ else
   FAILED=1
 fi
 
+# Semantic guard: the add-only raw/ rules sit outside every conditional, so they must render
+# in every variant. Without them an agent has no instruction protecting existing raw/ sources.
+for v in all-yes all-no private-only; do
+  if [[ -f "$TMP/$v.md" ]] && grep -q 'only under `raw/research/<slug>/`' "$TMP/$v.md" \
+     && grep -q "Don't modify, move, or delete existing files in \`raw/\`" "$TMP/$v.md"; then
+    echo "PASS: add-only raw/ rules render ($v)"
+  else
+    echo "FAIL: add-only raw/ rules missing ($v)"
+    FAILED=1
+  fi
+done
+
 # Unresolved placeholders must fail and must not write the output file.
 printf 'a {{missing}} b\n' > "$TMP/bad.tmpl"
 printf '{"other":"x"}\n' > "$TMP/bad.json"

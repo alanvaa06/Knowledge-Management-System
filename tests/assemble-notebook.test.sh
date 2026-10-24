@@ -40,4 +40,9 @@ if bash "$ASSEMBLE" "$TMP/not-a-topic" "$FIX/template.html" "$FIX/marked.stub.js
 fi
 echo "PASS: refuses non-topics"
 
+MARKED_HEAD="$(head -c 300 "$SKILL/marked.min.js")"
+[[ "$MARKED_HEAD" == *'marked v12.0.2'* ]] || fail "marked.min.js is not marked v12.0.2"
+! grep -qi '</script' "$SKILL/marked.min.js" || fail "marked.min.js contains </script"
+echo "PASS: vendored marked"
+
 echo "PASS: assemble-notebook.sh"

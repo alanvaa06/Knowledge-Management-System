@@ -56,6 +56,13 @@ try {
   if ((Invoke-Assembler @($bad, $tmpl, $stub)) -eq 0) { Fail 'topic without sessions was accepted' }
   Write-Host 'PASS: refuses non-topics'
 
+  $markedPath = Join-Path $Skill 'marked.min.js'
+  if (-not (Test-Path -LiteralPath $markedPath -PathType Leaf)) { Fail 'marked.min.js missing' }
+  $markedText = [System.IO.File]::ReadAllText($markedPath)
+  if (-not $markedText.Substring(0, [Math]::Min(300, $markedText.Length)).Contains('marked v12.0.2')) { Fail 'marked.min.js is not marked v12.0.2' }
+  if ($markedText -match '(?i)</script') { Fail 'marked.min.js contains </script' }
+  Write-Host 'PASS: vendored marked'
+
   Write-Host 'PASS: assemble-notebook.ps1'
 } finally {
   Remove-Item -Recurse -Force -LiteralPath $Tmp

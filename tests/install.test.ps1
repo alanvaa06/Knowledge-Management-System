@@ -27,6 +27,11 @@ try {
                    '.claude/commands/refine.md', '.claude/commands/refresh-index.md',
                    '.claude/commands/teach.md', '.claude/commands/vault-init.md',
                    '.claude/skills/vault-query/SKILL.md',
+                   '.claude/skills/teach-notebook/SKILL.md',
+                   '.claude/skills/teach-notebook/notebook.template.html',
+                   '.claude/skills/teach-notebook/marked.min.js',
+                   '.claude/skills/teach-notebook/assemble-notebook.sh',
+                   '.claude/skills/teach-notebook/assemble-notebook.ps1',
                    '.claude/lib/render-template.sh', '.claude/lib/render-template.ps1')) {
     if (-not (Test-Path -LiteralPath $f -PathType Leaf)) { Fail "$f not created" }
   }

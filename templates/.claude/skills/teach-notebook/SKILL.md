@@ -42,7 +42,7 @@ Never edit `sessions/NNNN-<name>.md` or `progress.md`: session files are append-
    2. <answer to question 2> ([[Wiki Article]])
    ```
 
-   Answer every quiz question, numbered like the quiz. Ground each answer in the wiki articles the session cites: read them, cite them with `[[wikilinks]]`. When the wiki does not cover a question, write `Sin cobertura en el wiki: <what is missing>` instead of answering from memory.
+   Answer every quiz question, numbered like the quiz. Ground each answer in the wiki articles the session cites: read them, cite them with `[[wikilinks]]`. When the wiki does not cover a question, write `Sin cobertura en el wiki: <what is missing>` instead of answering from memory. Before saving, give the answers the same prose pass as `/teach` step 5: cut contrasts, aphorism endings and reader-directing announcements; keep numbers, wikilinks and `==highlights==`.
 
 3. **Widget (session just taught only).** If that session has no `.widget.html`, decide whether an interactive piece makes its core idea tangible: a simulator, a slider over a parameter, a diagram to explore, a sorting exercise. If nothing in the lesson gains from interaction, write no widget and say so in chat. Otherwise write `sessions/NNNN-<name>.widget.html` following the widget contract below. Never write widgets for older sessions unless the user asks for one by number.
 

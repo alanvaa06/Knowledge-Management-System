@@ -45,4 +45,16 @@ MARKED_HEAD="$(head -c 300 "$SKILL/marked.min.js")"
 ! grep -qi '</script' "$SKILL/marked.min.js" || fail "marked.min.js contains </script"
 echo "PASS: vendored marked"
 
+REAL="$SKILL/notebook.template.html"
+[[ -f "$REAL" ]] || fail "notebook.template.html missing"
+for needle in '<!-- @@progress@@ -->' '<!-- @@sessions@@ -->' '<!-- @@marked@@ -->' \
+              '@@title@@' '@@topic@@' '@@artifact_url@@' '<title>' \
+              'prefers-color-scheme: dark' ':root:not([data-theme="light"])' ':root[data-theme="dark"]'; do
+  grep -qF -- "$needle" "$REAL" || fail "template missing: $needle"
+done
+! grep -qiE '<script[^>]*src=' "$REAL" || fail "template loads an external script"
+bash "$ASSEMBLE" "$TMP/demo-topic" > /dev/null
+! grep -qF '@@' "$TMP/demo-topic/notebook.html" || fail "real-template assembly left @@ tokens"
+echo "PASS: real template contract"
+
 echo "PASS: assemble-notebook.sh"

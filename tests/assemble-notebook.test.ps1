@@ -63,6 +63,20 @@ try {
   if ($markedText -match '(?i)</script') { Fail 'marked.min.js contains </script' }
   Write-Host 'PASS: vendored marked'
 
+  $real = Join-Path $Skill 'notebook.template.html'
+  if (-not (Test-Path -LiteralPath $real -PathType Leaf)) { Fail 'notebook.template.html missing' }
+  $realText = [System.IO.File]::ReadAllText($real)
+  foreach ($needle in @('<!-- @@progress@@ -->', '<!-- @@sessions@@ -->', '<!-- @@marked@@ -->',
+                        '@@title@@', '@@topic@@', '@@artifact_url@@', '<title>',
+                        'prefers-color-scheme: dark', ':root:not([data-theme="light"])', ':root[data-theme="dark"]')) {
+    if (-not $realText.Contains($needle)) { Fail "template missing: $needle" }
+  }
+  if ($realText -match '(?i)<script[^>]*src=') { Fail 'template loads an external script' }
+  $code = Invoke-Assembler @($topic)
+  if ($code -ne 0) { Fail "real-template assembly exited $code" }
+  if ([System.IO.File]::ReadAllText($out).Contains('@@')) { Fail 'real-template assembly left @@ tokens' }
+  Write-Host 'PASS: real template contract'
+
   Write-Host 'PASS: assemble-notebook.ps1'
 } finally {
   Remove-Item -Recurse -Force -LiteralPath $Tmp

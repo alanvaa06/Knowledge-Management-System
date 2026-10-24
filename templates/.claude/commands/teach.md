@@ -33,6 +33,13 @@ All teach state lives in `output/teach/<topic-slug>/` (kebab-case slug from the 
    - A short retrieval-practice quiz (recall from memory, not recognition). Quiz answers all the same word count — no formatting clues. Where it fits, interleave recall of prior sessions (spacing builds storage strength; in-session fluency is illusory).
    - Under each quiz question, its answer as a folded callout grounded in the same wiki articles (`> [!success]- Respuesta`, then `> <answer>`). Obsidian keeps it folded and the notebook turns it into a reveal button. Keep the quiz under a `## Quiz` heading.
    - A closing reminder that the user can ask follow-up questions in chat — you are the teacher.
+
+   Before writing the file, give the draft's prose one editing pass; once written, the session is append-only. If the `no-ai-slop` skill is installed, use its pattern list; otherwise make the same cuts yourself. The pass covers prose only:
+   - **Cut:** binary contrasts ("no es X, es Y", "not X, it's Y": state Y), closing lines that turn the point into an aphorism, announcements that tell the reader what matters ("lo importante es", "esto es clave", "fíjate que", "the key point is"), throat-clearing openers, colon reveals, recap endings, and dashes used for rhythm. Spanish gets the same cuts as English.
+   - **Keep:** the vault's format. Tables, bullets, `==highlights==`, callouts and the `NNNN — Title` heading are deliberate, so the skill's formatting advice does not apply here.
+   - **Never change:** numbers, quotes, `[[wikilinks]]`, technical terms, or the quiz and its answer callouts.
+
+   The pass is silent: no "what changed" report in chat.
 6. **Run the lesson in chat.** Walk the user through it interactively. Tight feedback loop: quiz them, give immediate feedback on each answer.
 7. **Update `progress.md`.** Append one Track row (date, session link, what stuck, what struggled). Record any new preference the user expressed. Report in chat what was written.
 8. **Update the notebook.** Follow the `teach-notebook` skill for this topic, with this session as the one just taught: it writes the session's widget when one helps, assembles `notebook.html`, and publishes it. Report the notebook's URL or path in chat.

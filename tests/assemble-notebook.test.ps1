@@ -56,6 +56,15 @@ try {
   if ((Invoke-Assembler @($bad, $tmpl, $stub)) -eq 0) { Fail 'topic without sessions was accepted' }
   Write-Host 'PASS: refuses non-topics'
 
+  # The other progress.md heading style in the wild: "# <Topic> - Progress" with an em dash.
+  $alt = Join-Path $Tmp 'alt-heading'
+  Copy-Item -Recurse -LiteralPath (Join-Path $Fix 'demo-topic') -Destination $alt
+  [System.IO.File]::WriteAllText((Join-Path $alt 'progress.md'), "# Jump Models " + [char]0x2014 + " Progress`n")
+  if ((Invoke-Assembler @($alt, $tmpl, $stub)) -ne 0) { Fail 'alt-heading assembly failed' }
+  $altLines = [System.IO.File]::ReadAllText((Join-Path $alt 'notebook.html')) -split "`n"
+  if ($altLines -notcontains '<title>Jump Models notebook</title>') { Fail "'<Topic> - Progress' heading not stripped" }
+  Write-Host 'PASS: progress heading styles'
+
   $markedPath = Join-Path $Skill 'marked.min.js'
   if (-not (Test-Path -LiteralPath $markedPath -PathType Leaf)) { Fail 'marked.min.js missing' }
   $markedText = [System.IO.File]::ReadAllText($markedPath)

@@ -86,6 +86,9 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
 .answer > :first-child { margin-top: 0; }
 .answer > :last-child { margin-bottom: 0; }
 .build-error { font-family: var(--sans); color: var(--danger); }
+.math { font-family: var(--mono); font-size: .85em; color: var(--ink-2); }
+.math-display { display: block; margin: 16px 0; overflow-x: auto; text-align: center; }
+.math.math-ready { font-family: inherit; font-size: inherit; color: inherit; }
 @media (max-width: 720px) {
   .app { grid-template-columns: minmax(0, 1fr); }
   .rail { display: none; }
@@ -179,11 +182,102 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
     ]
   });
 
+  // ---- Math ---------------------------------------------------------------
+
+  // TeX ($$...$$ and $...$, Obsidian's rules) is pulled out before marked sees it, so underscores and
+  // backslashes survive. MathJax is fetched only when a tab has math; offline, the raw TeX stays.
+  var MATHJAX = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js';
+  var mathSources = [];
+  var mathJaxReady = null;
+
+  function mathSlot(tex, display) {
+    mathSources.push(tex);
+    return '<span class="math' + (display ? ' math-display' : '') + '" data-math="' + (mathSources.length - 1) + '"></span>';
+  }
+
+  // Scan prose (never code): skip backtick spans, keep \$ literal, and leave "$5 or $10" alone.
+  function protectChunk(s) {
+    var out = '';
+    var i = 0;
+    while (i < s.length) {
+      var c = s.charAt(i);
+      if (c === '`') {
+        var run = /^`+/.exec(s.slice(i))[0];
+        var close = s.indexOf(run, i + run.length);
+        if (close < 0) { out += run; i += run.length; continue; }
+        out += s.slice(i, close + run.length);
+        i = close + run.length;
+        continue;
+      }
+      if (c === '\\' && s.charAt(i + 1) === '$') { out += '\\$'; i += 2; continue; }
+      if (c === '$' && s.charAt(i + 1) === '$') {
+        var end = s.indexOf('$$', i + 2);
+        if (end > i + 2) { out += mathSlot(s.slice(i + 2, end).trim(), true); i = end + 2; continue; }
+      } else if (c === '$') {
+        var m = /^\$(?=\S)([^$\n]*?\S)\$(?!\d)/.exec(s.slice(i));
+        if (m) { out += mathSlot(m[1], false); i += m[0].length; continue; }
+      }
+      out += c;
+      i++;
+    }
+    return out;
+  }
+
+  function protectMath(md) {
+    var out = [];
+    var chunk = [];
+    var fence = null;
+    function flush() { if (chunk.length) { out.push(protectChunk(chunk.join('\n'))); chunk = []; } }
+    md.split('\n').forEach(function (line) {
+      var f = /^\s*(`{3,}|~{3,})/.exec(line);
+      if (fence) {
+        out.push(line);
+        if (f && f[1].charAt(0) === fence) fence = null;
+        return;
+      }
+      if (f) { flush(); fence = f[1].charAt(0); out.push(line); return; }
+      chunk.push(line);
+    });
+    flush();
+    return out.join('\n');
+  }
+
+  function loadMathJax() {
+    if (!mathJaxReady) {
+      window.MathJax = { startup: { typeset: false }, svg: { fontCache: 'local' } };
+      mathJaxReady = loadScript(MATHJAX).then(function () { return window.MathJax.startup.promise; }).then(function () {
+        // MathJax's own CSS hides the assistive MathML copy that tex2svg adds next to each SVG.
+        document.head.appendChild(window.MathJax.svgStylesheet());
+      });
+    }
+    return mathJaxReady;
+  }
+
+  function typesetMath(root) {
+    var slots = root.querySelectorAll('.math[data-math]');
+    if (!slots.length) return;
+    slots.forEach(function (el) { el.textContent = mathSources[+el.getAttribute('data-math')]; });
+    loadMathJax().then(function () {
+      slots.forEach(function (el) {
+        try {
+          var svg = window.MathJax.tex2svg(mathSources[+el.getAttribute('data-math')], { display: el.classList.contains('math-display') });
+          el.textContent = '';
+          el.appendChild(svg);
+          el.classList.add('math-ready');
+        } catch (e) { /* bad TeX: keep the source visible */ }
+      });
+    }).catch(function () { /* offline: the raw TeX stays readable */ });
+  }
+
   var CALLOUT = /^>\s*\[!([A-Za-z-]+)\]([+-]?)\s*(.*)$/;
 
   function calloutHtml(type, fold, title, body) {
     if (type === 'success' && /^respuesta\b/i.test(title)) {
       return '<div class="answer" hidden>' + body + '</div>';
+    }
+    // One "Respuestas" block holding a numbered list: enhanceQuiz hands item N to question N.
+    if (type === 'success' && /^respuestas\b/i.test(title)) {
+      return '<div class="answer answer-list" hidden>' + body + '</div>';
     }
     var label = title ? marked.parseInline(title) : escapeHtml(type.charAt(0).toUpperCase() + type.slice(1));
     var typeAttr = ' data-type="' + escapeHtml(type) + '"';
@@ -196,7 +290,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
 
   // Obsidian callouts become pre-rendered HTML slots, so blank lines inside them can't break marked's HTML blocks.
   function renderMarkdown(md) {
-    var lines = md.split('\n');
+    var lines = protectMath(md).split('\n');
     var out = [];
     var slots = [];
     var fence = null;
@@ -272,14 +366,26 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
     if (!quiz) return null;
     var external = parseAnswers(answersMd);
     var items = [];
+    var lists = [];
     for (var el = quiz.nextElementSibling; el && el.tagName !== 'H2'; el = el.nextElementSibling) {
       if (el.tagName === 'OL') {
         var start = parseInt(el.getAttribute('start') || '1', 10);
         for (var k = 0; k < el.children.length; k++) items.push({ li: el.children[k], n: start + k, answer: null });
+      } else if (el.classList.contains('answer-list')) {
+        lists.push(el);
       } else if (el.classList.contains('answer') && items.length) {
         items[items.length - 1].answer = el;
       }
     }
+    lists.forEach(function (list) {
+      var ol = list.querySelector('ol');
+      if (!ol) return;
+      var first = parseInt(ol.getAttribute('start') || '1', 10);
+      for (var j = 0; j < ol.children.length; j++) {
+        if (!external[first + j]) external[first + j] = ol.children[j].innerHTML;
+      }
+      list.parentNode.removeChild(list);
+    });
     var pairs = [];
     items.forEach(function (item) {
       var answer = item.answer;
@@ -443,7 +549,9 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
 
   var progressEl = document.getElementById('progress');
   var progressMd = progressEl ? readBlock(progressEl) : '';
-  var topicTitle = ((/^#\s+(.+)$/m.exec(progressMd) || [])[1] || TOPIC).replace(/^Teach(?: |-|:|—|–)+/, '');
+  var topicTitle = ((/^#\s+(.+)$/m.exec(progressMd) || [])[1] || TOPIC)
+    .replace(/^Teach(?: |-|:|—|–)+/, '')
+    .replace(/(?: |-|:|—|–)+Progress$/, '');
 
   function buildSession(s) {
     var article = document.createElement('article');
@@ -452,6 +560,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
     wrapTables(article);
     var quiz = enhanceQuiz(article, s.num, s.answers);
     wireLooseAnswers(article);
+    typesetMath(article);
     return { el: article, mount: function () { mountWidget(article, s.num, quiz); } };
   }
 
@@ -459,6 +568,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
     var article = document.createElement('article');
     article.innerHTML = '<div class="eyebrow">Progreso</div>' + renderMarkdown(progressMd);
     wrapTables(article);
+    typesetMath(article);
     return { el: article };
   }
 

@@ -28,7 +28,7 @@ Never edit `sessions/NNNN-<name>.md` or `progress.md`: session files are append-
 
 1. **Check the topic.** Confirm `progress.md` and at least one `sessions/NNNN-*.md` exist. If not, stop with: "`<folder>` is not a `/teach` topic".
 
-2. **Backfill answers.** For each session file with no `> [!success]- Respuesta` callout and no `.answers.md` beside it, write `sessions/NNNN-<name>.answers.md`:
+2. **Backfill answers.** A session already has answers when its quiz carries a `> [!success]- Respuesta` callout under each question, or one `> [!success]- Respuestas` block with a numbered list (the notebook splits it per question), or an `.answers.md` beside it. For each session with none of these, write `sessions/NNNN-<name>.answers.md`:
 
    ```markdown
    ---

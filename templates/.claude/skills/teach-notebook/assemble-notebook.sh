@@ -67,7 +67,7 @@ html_escape() {
 TOPIC="$(basename "$(cd "$TOPIC_DIR" && pwd)")"
 TITLE="$(clean "$TOPIC_DIR/progress.md" \
   | LC_ALL=C awk 'f == 0 && /^# / { sub(/^# +/, ""); print; f = 1 }' \
-  | LC_ALL=C sed -E 's/^Teach( |-|:|—|–)+//')"
+  | LC_ALL=C sed -E -e 's/^Teach( |-|:|—|–)+//' -e 's/( |-|:|—|–)+Progress$//')"
 [[ -n "$TITLE" ]] || TITLE="$TOPIC"
 
 URL=""

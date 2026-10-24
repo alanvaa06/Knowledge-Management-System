@@ -1,0 +1,10 @@
+<style>.box{font-family:var(--sans);color:var(--ink)} input{width:100%}</style>
+<div class="box">
+  <label>Valor: <span class="out">50</span></label>
+  <input type="range" min="0" max="100" value="50">
+</div>
+<script>
+var input = root.querySelector('input');
+var out = root.querySelector('.out');
+input.addEventListener('input', function () { out.textContent = input.value; });
+</script>

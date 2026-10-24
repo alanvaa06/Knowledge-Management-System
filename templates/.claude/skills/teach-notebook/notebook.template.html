@@ -459,7 +459,9 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
 
   var progressEl = document.getElementById('progress');
   var progressMd = progressEl ? readBlock(progressEl) : '';
-  var topicTitle = ((/^#\s+(.+)$/m.exec(progressMd) || [])[1] || TOPIC).replace(/^Teach(?: |-|:|—|–)+/, '');
+  var topicTitle = ((/^#\s+(.+)$/m.exec(progressMd) || [])[1] || TOPIC)
+    .replace(/^Teach(?: |-|:|—|–)+/, '')
+    .replace(/(?: |-|:|—|–)+Progress$/, '');
 
   function buildSession(s) {
     var article = document.createElement('article');

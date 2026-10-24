@@ -67,6 +67,7 @@ $h1 = [regex]::Match((Read-Clean $progress), '(?m)^# +(.*)$')
 if ($h1.Success) {
   $dashes = [string][char]0x2014 + '|' + [string][char]0x2013
   $title = [regex]::Replace($h1.Groups[1].Value, '^Teach(?: |-|:|' + $dashes + ')+', '')
+  $title = [regex]::Replace($title, '(?: |-|:|' + $dashes + ')+Progress$', '')
 }
 if (-not $title) { $title = $topic }
 

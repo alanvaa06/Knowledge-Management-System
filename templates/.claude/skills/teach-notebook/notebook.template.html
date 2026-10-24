@@ -7,15 +7,19 @@
 <meta name="teach-topic" content="@@topic@@">
 <meta name="artifact-url" content="@@artifact_url@@">
 <script>
-  // The viewer's color style (data-palette, default azul) is set before first paint. It lives in its own
-  // attribute because the Artifact host may set data-theme on the root itself.
+  // The viewer's color style (data-palette, default azul) and page background (data-paper, default tinta)
+  // are set before first paint. They live in their own attributes because the Artifact host may set
+  // data-theme on the root itself.
   (function () {
     var palette = 'azul';
+    var paper = 'tinta';
     try {
       var saved = window.localStorage.getItem('teach-notebook:palette');
       if (/^(azul|verde|purpura|gris|papel|oscuro)$/.test(saved)) palette = saved;
+      if (window.localStorage.getItem('teach-notebook:paper') === 'blanco') paper = 'blanco';
     } catch (e) { /* storage blocked */ }
     document.documentElement.setAttribute('data-palette', palette);
+    document.documentElement.setAttribute('data-paper', paper);
   })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -93,6 +97,10 @@
   --ok: #8FBF98; --ok-soft: #22302A; --danger: #E08A8A;
   color-scheme: dark;
 }
+/* "Blanco" background: only the page goes near-white; callouts, highlights, rules and buttons keep the
+   style's color. Oscuro has no white variant. */
+:root[data-paper="blanco"]:not([data-palette="oscuro"]) { --paper: #FDFDFC; }
+:root[data-palette="oscuro"] .paper-control { display: none; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; }
@@ -110,6 +118,7 @@ main { padding: 48px 56px 96px; max-width: 820px; margin: 0 auto; }
 article p, article li, .answer p { text-align: justify; -webkit-hyphens: auto; hyphens: auto; }
 .rail-foot { margin: 24px 0 0 12px; }
 .rail-foot label { display: block; font-family: var(--sans); font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.rail-foot .paper-control { margin-top: 12px; }
 .palette-picker { font-family: var(--sans); font-size: 13px; padding: 5px 8px; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; }
 .eyebrow { font-family: var(--sans); font-size: 13px; color: var(--muted); }
 article h1 { font-size: 34px; line-height: 1.2; font-weight: 500; margin: 6px 0 24px; }
@@ -153,8 +162,8 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
 @media (max-width: 720px) {
   .app { grid-template-columns: minmax(0, 1fr); }
   .rail { display: none; }
-  .picker { display: flex; gap: 8px; align-items: center; position: sticky; top: 0; z-index: 1; background: var(--paper); border-bottom: 1px solid var(--rule); padding: 10px 16px; }
-  .picker #picker { flex: 1; min-width: 0; font-family: var(--sans); font-size: 15px; padding: 8px; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; }
+  .picker { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; position: sticky; top: 0; z-index: 1; background: var(--paper); border-bottom: 1px solid var(--rule); padding: 10px 16px; }
+  .picker #picker { flex: 1 1 100%; min-width: 0; font-family: var(--sans); font-size: 15px; padding: 8px; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; }
   main { padding: 24px 16px 72px; }
   article p, article li, .answer p { text-align: left; }
   article h1 { font-size: 28px; }
@@ -172,6 +181,12 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
         <option value="azul">Azul</option><option value="verde">Verde</option><option value="purpura">Púrpura</option>
         <option value="gris">Gris</option><option value="papel">Papel</option><option value="oscuro">Oscuro</option>
       </select>
+      <div class="paper-control">
+        <label for="paper-rail">Fondo</label>
+        <select id="paper-rail" class="palette-picker" data-paper-picker>
+          <option value="tinta">Con tinte</option><option value="blanco">Blanco</option>
+        </select>
+      </div>
     </div>
   </nav>
   <div>
@@ -180,6 +195,9 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
       <select id="palette-top" class="palette-picker" data-palette-picker aria-label="Estilo de color">
         <option value="azul">Azul</option><option value="verde">Verde</option><option value="purpura">Púrpura</option>
         <option value="gris">Gris</option><option value="papel">Papel</option><option value="oscuro">Oscuro</option>
+      </select>
+      <select id="paper-top" class="palette-picker paper-control" data-paper-picker aria-label="Fondo">
+        <option value="tinta">Con tinte</option><option value="blanco">Blanco</option>
       </select>
     </div>
     <main id="main" lang="es"></main>
@@ -215,6 +233,19 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
     sel.addEventListener('change', function () {
       applyPalette(sel.value);
       try { window.localStorage.setItem('teach-notebook:palette', sel.value); } catch (e) { /* not remembered */ }
+    });
+  });
+
+  var paperPickers = document.querySelectorAll('[data-paper-picker]');
+  function applyPaper(paper) {
+    document.documentElement.setAttribute('data-paper', paper);
+    paperPickers.forEach(function (sel) { sel.value = paper; });
+  }
+  applyPaper(document.documentElement.getAttribute('data-paper') === 'blanco' ? 'blanco' : 'tinta');
+  paperPickers.forEach(function (sel) {
+    sel.addEventListener('change', function () {
+      applyPaper(sel.value);
+      try { window.localStorage.setItem('teach-notebook:paper', sel.value); } catch (e) { /* not remembered */ }
     });
   });
 

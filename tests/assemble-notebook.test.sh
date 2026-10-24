@@ -57,7 +57,7 @@ REAL="$SKILL/notebook.template.html"
 for needle in '<!-- @@progress@@ -->' '<!-- @@sessions@@ -->' '<!-- @@marked@@ -->' \
               '@@title@@' '@@topic@@' '@@artifact_url@@' '<title>' \
               'prefers-color-scheme: dark' ':root:not([data-theme="light"])' ':root[data-theme="dark"]' \
-              ':root[data-palette="azul"]' 'data-palette-picker'; do
+              ':root[data-palette="azul"]' 'data-palette-picker' 'data-paper-picker'; do
   grep -qF -- "$needle" "$REAL" || fail "template missing: $needle"
 done
 ! grep -qiE '<script[^>]*src=' "$REAL" || fail "template loads an external script"

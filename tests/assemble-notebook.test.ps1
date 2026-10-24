@@ -78,7 +78,7 @@ try {
   foreach ($needle in @('<!-- @@progress@@ -->', '<!-- @@sessions@@ -->', '<!-- @@marked@@ -->',
                         '@@title@@', '@@topic@@', '@@artifact_url@@', '<title>',
                         'prefers-color-scheme: dark', ':root:not([data-theme="light"])', ':root[data-theme="dark"]',
-                        ':root[data-palette="azul"]', 'data-palette-picker')) {
+                        ':root[data-palette="azul"]', 'data-palette-picker', 'data-paper-picker')) {
     if (-not $realText.Contains($needle)) { Fail "template missing: $needle" }
   }
   if ($realText -match '(?i)<script[^>]*src=') { Fail 'template loads an external script' }

@@ -24,6 +24,9 @@ test -f .claude/commands/refine.md || { echo "FAIL: refine command not copied"; 
 test -f .claude/commands/refresh-index.md || { echo "FAIL: refresh-index command not copied"; exit 1; }
 test -f .claude/commands/teach.md || { echo "FAIL: teach command not copied"; exit 1; }
 test -f .claude/skills/vault-query/SKILL.md || { echo "FAIL: vault-query skill not copied"; exit 1; }
+for f in SKILL.md notebook.template.html marked.min.js assemble-notebook.sh assemble-notebook.ps1; do
+  test -f ".claude/skills/teach-notebook/$f" || { echo "FAIL: teach-notebook/$f not copied"; exit 1; }
+done
 test -f .claude/lib/render-template.sh || { echo "FAIL: renderer not copied"; exit 1; }
 test -f .claude/lib/render-template.ps1 || { echo "FAIL: PS renderer not copied"; exit 1; }
 test ! -e .claude/settings.json || { echo "FAIL: installer must not create .claude/settings.json"; exit 1; }

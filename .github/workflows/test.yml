@@ -43,6 +43,9 @@ jobs:
       - name: Installer tests
         run: bash tests/install.test.sh
 
+      - name: Notebook assembler tests
+        run: bash tests/assemble-notebook.test.sh
+
   powershell:
     name: powershell (windows-latest)
     runs-on: windows-latest
@@ -57,3 +60,6 @@ jobs:
 
       - name: Installer tests
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/install.test.ps1
+
+      - name: Notebook assembler tests
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/assemble-notebook.test.ps1

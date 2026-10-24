@@ -1,0 +1,1 @@
+window.marked = { stub: true };

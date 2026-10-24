@@ -12,13 +12,14 @@ Usage: `/teach <topic>`
 
 ## Workspace
 
-All teach state lives in `output/teach/<topic-slug>/` (kebab-case slug from the topic). Exactly two kinds of files:
+All teach state lives in `output/teach/<topic-slug>/` (kebab-case slug from the topic). Two kinds of files you write directly:
 
 - **`progress.md`** — single living file with three sections:
   - `## Mission` — *why* the user wants to learn this. Written once during the first-session interview. Grounds every lesson.
   - `## Track` — table: `| Date | Session | What stuck | What struggled |`. One row per session. This is the input for calculating the zone of proximal development.
   - `## Preferences` — bullet list of how the user wants to be taught (pace, format, depth). Update whenever the user expresses one.
 - **`sessions/NNNN-<dash-case-name>.md`** — one file per lesson, numbered from `0001`, append-only. Never edit a past session file.
+- **Notebook files**, owned by the `teach-notebook` skill: `notebook.html` (generated, disposable), `sessions/NNNN-<name>.answers.md` and `sessions/NNNN-<name>.widget.html`.
 
 ## Procedure
 
@@ -30,9 +31,11 @@ All teach state lives in `output/teach/<topic-slug>/` (kebab-case slug from the 
    - The single skill or concept being taught, with the minimum knowledge needed to acquire it.
    - `[[wikilink]]` citations to every wiki article (and any `notes/` file) the lesson draws on.
    - A short retrieval-practice quiz (recall from memory, not recognition). Quiz answers all the same word count — no formatting clues. Where it fits, interleave recall of prior sessions (spacing builds storage strength; in-session fluency is illusory).
+   - Under each quiz question, its answer as a folded callout grounded in the same wiki articles (`> [!success]- Respuesta`, then `> <answer>`). Obsidian keeps it folded and the notebook turns it into a reveal button. Keep the quiz under a `## Quiz` heading.
    - A closing reminder that the user can ask follow-up questions in chat — you are the teacher.
 6. **Run the lesson in chat.** Walk the user through it interactively. Tight feedback loop: quiz them, give immediate feedback on each answer.
 7. **Update `progress.md`.** Append one Track row (date, session link, what stuck, what struggled). Record any new preference the user expressed. Report in chat what was written.
+8. **Update the notebook.** Follow the `teach-notebook` skill for this topic, with this session as the one just taught: it writes the session's widget when one helps, assembles `notebook.html`, and publishes it. Report the notebook's URL or path in chat.
 
 ## Voice
 

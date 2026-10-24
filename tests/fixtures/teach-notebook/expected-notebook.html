@@ -1,0 +1,107 @@
+<!doctype html>
+<title>Demo &amp; Topic notebook</title>
+<meta name="teach-topic" content="demo-topic">
+<meta name="artifact-url" content="https://claude.ai/artifact/abc123">
+<script type="text/markdown" id="progress">
+# Teach — Demo & Topic
+
+## Mission
+
+Probar el notebook de punta a punta.
+
+## Track
+
+| Date | Session | What stuck | What struggled |
+| ---- | ------- | ---------- | -------------- |
+| 2026-10-24 | [[0001-primera]] | Callouts | Nada |
+
+## Preferences
+
+- Responder en español.
+</script>
+<script type="text/markdown" data-session="0001" data-file="0001-primera.md">
+---
+topic: demo-topic
+session: 0001
+date: 2026-10-24
+---
+
+# 0001 — Primera sesión
+
+> [!info] Objetivo único
+> Probar ==resaltado== y [[Nota de prueba|un alias]].
+
+> [!tip]- Plegable
+> Contenido escondido.
+
+| Columna | Valor |
+|---|---|
+| Wikilink | [[Otra nota\|alias en tabla]] |
+
+```html
+<script>alert(1)<\/script>
+<\!-- comentario -->
+```
+
+## Quiz
+
+1. ¿Cuánto es 2 + 2?
+
+> [!success]- Respuesta
+> Cuatro.
+
+2. ¿De qué color es el cielo despejado?
+
+> [!success]- Respuesta
+> Azul.
+</script>
+<template data-widget="0001">
+<style>.box{font-family:var(--sans);color:var(--ink)} input{width:100%}</style>
+<div class="box">
+  <label>Valor: <span class="out">50</span></label>
+  <input type="range" min="0" max="100" value="50">
+</div>
+<script>
+var input = root.querySelector('input');
+var out = root.querySelector('.out');
+input.addEventListener('input', function () { out.textContent = input.value; });
+</script>
+</template>
+<script type="text/markdown" data-session="0002" data-file="0002-segunda.md">
+---
+topic: demo-topic
+session: 0002
+date: 2026-10-25
+---
+
+# 0002 — Segunda sesión
+
+Texto simple con `código` en línea.
+
+## Quiz
+
+1. ¿Capital de Francia?
+2. ¿Pregunta sin respuesta registrada?
+</script>
+<script type="text/markdown" data-answers="0002">
+---
+session: 0002
+generated: 2026-10-25
+---
+
+# Respuestas — 0002
+
+1. París. ([[Francia]])
+</script>
+<template data-widget="0002">
+<p class="hola">Widget de prueba</p>
+<script>throw new Error('falla a proposito');</script>
+</template>
+<script type="text/markdown" data-session="0003" data-file="0003-crlf.md">
+# 0003 - CRLF
+
+Linea.
+</script>
+<script>
+window.marked = { stub: true };
+</script>

@@ -185,6 +185,10 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
     if (type === 'success' && /^respuesta\b/i.test(title)) {
       return '<div class="answer" hidden>' + body + '</div>';
     }
+    // One "Respuestas" block holding a numbered list: enhanceQuiz hands item N to question N.
+    if (type === 'success' && /^respuestas\b/i.test(title)) {
+      return '<div class="answer answer-list" hidden>' + body + '</div>';
+    }
     var label = title ? marked.parseInline(title) : escapeHtml(type.charAt(0).toUpperCase() + type.slice(1));
     var typeAttr = ' data-type="' + escapeHtml(type) + '"';
     if (fold) {
@@ -272,14 +276,26 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, .rail a:focu
     if (!quiz) return null;
     var external = parseAnswers(answersMd);
     var items = [];
+    var lists = [];
     for (var el = quiz.nextElementSibling; el && el.tagName !== 'H2'; el = el.nextElementSibling) {
       if (el.tagName === 'OL') {
         var start = parseInt(el.getAttribute('start') || '1', 10);
         for (var k = 0; k < el.children.length; k++) items.push({ li: el.children[k], n: start + k, answer: null });
+      } else if (el.classList.contains('answer-list')) {
+        lists.push(el);
       } else if (el.classList.contains('answer') && items.length) {
         items[items.length - 1].answer = el;
       }
     }
+    lists.forEach(function (list) {
+      var ol = list.querySelector('ol');
+      if (!ol) return;
+      var first = parseInt(ol.getAttribute('start') || '1', 10);
+      for (var j = 0; j < ol.children.length; j++) {
+        if (!external[first + j]) external[first + j] = ol.children[j].innerHTML;
+      }
+      list.parentNode.removeChild(list);
+    });
     var pairs = [];
     items.forEach(function (item) {
       var answer = item.answer;
